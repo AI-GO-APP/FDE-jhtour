@@ -1,16 +1,20 @@
 /**
  * 通用頁面殼 — 統一所有列表頁的結構
  * 包含：標題 + 工具列 + FilterPanel + DataTable
+ * 支援 RBAC readonly 模式
  */
 'use client';
 
 import React, { useState, useMemo, useCallback } from 'react';
-import { Typography, Button, Space, Table, Popconfirm, Tooltip, message } from 'antd';
+import { Typography, Button, Space, Table, Popconfirm, Tooltip, message, Tag } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
-import { PlusOutlined, ExportOutlined, PrinterOutlined, DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { PlusOutlined, ExportOutlined, PrinterOutlined, DeleteOutlined, EditOutlined, EyeOutlined, LockOutlined } from '@ant-design/icons';
+import { usePathname } from 'next/navigation';
 import FilterPanel from '@/components/filter-panel/FilterPanel';
 import CrudDrawer from '@/components/crud-drawer/CrudDrawer';
 import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '@/lib/constants';
+import { useAuth } from '@/lib/auth-context';
+import { getPermission } from '@/lib/rbac';
 
 const { Title } = Typography;
 
@@ -56,6 +60,12 @@ export default function PageShell<T extends object>({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<'create' | 'edit' | 'view'>('create');
 
+  // RBAC 權限檢查
+  const pathname = usePathname();
+  const { user } = useAuth();
+  const permission = user ? getPermission(user.role, pathname) : 'readonly';
+  const isReadonly = permission === 'readonly';
+
   const handleSearch = useCallback(
     (values: Record<string, unknown>) => {
       const keyword = (values.keyword as string || '').toLowerCase();
@@ -77,9 +87,36 @@ export default function PageShell<T extends object>({
     setFilteredData(dataSource);
   }, [dataSource]);
 
-  // 加入操作欄
+  // 加入操作欄（根據權限決定按鈕顯示）
   const columnsWithAction: ColumnsType<T> = useMemo(() => {
     if (!formContent) return columns;
+
+    if (isReadonly) {
+      // 唯讀模式：只保留檢視按鈕
+      return [
+        ...columns,
+        {
+          title: '操作',
+          key: 'action',
+          width: 60,
+          fixed: 'right' as const,
+          render: () => (
+            <Tooltip title="檢視">
+              <Button
+                type="text"
+                size="small"
+                icon={<EyeOutlined />}
+                onClick={() => {
+                  setDrawerMode('view');
+                  setDrawerOpen(true);
+                }}
+              />
+            </Tooltip>
+          ),
+        },
+      ];
+    }
+
     return [
       ...columns,
       {
@@ -120,7 +157,7 @@ export default function PageShell<T extends object>({
         ),
       },
     ];
-  }, [columns, formContent]);
+  }, [columns, formContent, isReadonly]);
 
   const pagination: TablePaginationConfig = {
     defaultPageSize: DEFAULT_PAGE_SIZE,
@@ -133,9 +170,14 @@ export default function PageShell<T extends object>({
   return (
     <div>
       <div className="table-toolbar">
-        <Title level={4} style={{ margin: 0 }}>{title}</Title>
+        <Space align="center">
+          <Title level={4} style={{ margin: 0 }}>{title}</Title>
+          {isReadonly && (
+            <Tag icon={<LockOutlined />} color="orange" style={{ marginLeft: 8 }}>唯讀</Tag>
+          )}
+        </Space>
         <Space>
-          {showCreate && formContent && (
+          {showCreate && formContent && !isReadonly && (
             <Button
               type="primary"
               icon={<PlusOutlined />}

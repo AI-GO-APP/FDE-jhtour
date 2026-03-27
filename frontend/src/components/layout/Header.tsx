@@ -3,9 +3,10 @@
 /**
  * ERP 頂部導航列
  * 替代舊系統的 topFrame (使用者資訊、登出、通知)
+ * 整合 RBAC 角色切換
  */
 import React from 'react';
-import { Layout, Breadcrumb, Badge, Dropdown, Avatar, Space } from 'antd';
+import { Layout, Breadcrumb, Badge, Dropdown, Avatar, Space, Tag, message } from 'antd';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -14,9 +15,14 @@ import {
   LogoutOutlined,
   SettingOutlined,
   KeyOutlined,
+  SwapOutlined,
+  CrownOutlined,
 } from '@ant-design/icons';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import type { MenuProps } from 'antd';
+import { useAuth } from '@/lib/auth-context';
+import { ROLE_INFO } from '@/lib/rbac';
+import type { Role } from '@/lib/rbac';
 import styles from './Header.module.css';
 
 const { Header: AntHeader } = Layout;
@@ -71,19 +77,17 @@ const PATH_LABELS: Record<string, string> = {
   payable: '應付憑單',
   bbs: '訊息編輯',
   news: '公佈欄',
+  leave: '差假狀況表',
+  clock: '刷卡狀況表',
+  summary: '考勤狀況表',
+  'emp-swap': '業務員替換',
+  login: '登入',
 };
-
-/** // TODO: [替換] 改為從 auth context 取得使用者資訊 */
-const userMenuItems: MenuProps['items'] = [
-  { key: 'profile', label: '個人資料', icon: <UserOutlined /> },
-  { key: 'password', label: '修改密碼', icon: <KeyOutlined /> },
-  { key: 'settings', label: '設定', icon: <SettingOutlined /> },
-  { type: 'divider' },
-  { key: 'logout', label: '登出', icon: <LogoutOutlined />, danger: true },
-];
 
 export default function Header({ collapsed, onToggle }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout, switchRole } = useAuth();
 
   // 產生麵包屑
   const segments = pathname.split('/').filter(Boolean);
@@ -93,6 +97,33 @@ export default function Header({ collapsed, onToggle }: HeaderProps) {
       title: PATH_LABELS[seg] || seg,
     })),
   ];
+
+  // 角色切換子選單（僅 ADMIN 可見）
+  const roleSwitchItems: MenuProps['items'] = user?.role === 'ADMIN'
+    ? (Object.keys(ROLE_INFO) as Role[]).map((r) => ({
+        key: `switch-${r}`,
+        label: `切換至 ${ROLE_INFO[r].label}`,
+        icon: <SwapOutlined />,
+        onClick: () => {
+          switchRole(r);
+          message.success(`已切換至 ${ROLE_INFO[r].label} 視角`);
+        },
+      }))
+    : [];
+
+  const userMenuItems: MenuProps['items'] = [
+    { key: 'profile', label: '個人資料', icon: <UserOutlined /> },
+    { key: 'password', label: '修改密碼', icon: <KeyOutlined />, onClick: () => router.push('/master-data/password') },
+    { key: 'settings', label: '設定', icon: <SettingOutlined /> },
+    ...(roleSwitchItems.length > 0 ? [
+      { type: 'divider' as const },
+      { key: 'switch-role', label: '角色切換', icon: <CrownOutlined />, children: roleSwitchItems },
+    ] : []),
+    { type: 'divider' as const },
+    { key: 'logout', label: '登出', icon: <LogoutOutlined />, danger: true, onClick: () => { logout(); router.push('/login'); } },
+  ];
+
+  const roleInfo = user ? ROLE_INFO[user.role] : null;
 
   return (
     <AntHeader className={styles.header}>
@@ -108,13 +139,18 @@ export default function Header({ collapsed, onToggle }: HeaderProps) {
           <BellOutlined style={{ fontSize: 18, cursor: 'pointer' }} />
         </Badge>
 
-        {/* TODO: [替換] 改為從 auth context/API 取得實際登入使用者 */}
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
           <Space className={styles.userInfo}>
-            <Avatar icon={<UserOutlined />} size="small" />
+            <Avatar
+              icon={<UserOutlined />}
+              size="small"
+              style={{ backgroundColor: roleInfo?.color }}
+            />
             <div>
-              <div className={styles.userName}>LOUIS</div>
-              <div className={styles.userRole}>會計</div>
+              <div className={styles.userName}>{user?.empName || '訪客'}</div>
+              <Tag color={roleInfo?.color} style={{ fontSize: 11, lineHeight: '16px', marginRight: 0 }}>
+                {roleInfo?.label || '未登入'}
+              </Tag>
             </div>
           </Space>
         </Dropdown>

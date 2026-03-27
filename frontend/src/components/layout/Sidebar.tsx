@@ -4,12 +4,16 @@
  * ERP 側邊導航選單
  * 替代舊系統的 leftFrame (TreeView 導航)
  * 支援多層收合選單、路由導航
+ * 根據使用者角色過濾可見選單
  */
 import React, { useMemo } from 'react';
 import { Layout, Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
 import { sidebarMenuItems, type SidebarMenuItem } from '@/lib/menu-config';
+import { useAuth } from '@/lib/auth-context';
+import { isRouteVisible, isRouteEditable } from '@/lib/rbac';
+import type { Role } from '@/lib/rbac';
 import styles from './Sidebar.module.css';
 
 const { Sider } = Layout;
@@ -17,6 +21,35 @@ const { Sider } = Layout;
 interface SidebarProps {
   collapsed: boolean;
   onCollapse: (collapsed: boolean) => void;
+}
+
+/**
+ * 根據角色過濾選單項目
+ * - hidden 的路由完全移除
+ * - 遞迴過濾子選單，空的父選單也移除
+ */
+function filterMenuByRole(items: SidebarMenuItem[], role: Role): SidebarMenuItem[] {
+  return items.reduce<SidebarMenuItem[]>((acc, item) => {
+    if (item.path) {
+      // 葉子節點：檢查是否可見
+      if (isRouteVisible(role, item.path)) {
+        const readonly = !isRouteEditable(role, item.path);
+        acc.push({
+          ...item,
+          label: readonly ? `${item.label} 👁️` : item.label,
+        });
+      }
+    } else if (item.children) {
+      // 父節點：遞迴過濾子選單
+      const filteredChildren = filterMenuByRole(item.children, role);
+      if (filteredChildren.length > 0) {
+        acc.push({ ...item, children: filteredChildren });
+      }
+    } else {
+      acc.push(item);
+    }
+    return acc;
+  }, []);
 }
 
 /** 將 SidebarMenuItem 轉換為 Ant Design Menu items */
@@ -68,13 +101,21 @@ function findPathByKey(items: SidebarMenuItem[], key: string): string | undefine
 export default function Sidebar({ collapsed, onCollapse }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useAuth();
+  const role = user?.role ?? 'SALES';
 
-  const menuItems = useMemo(() => toAntdMenuItems(sidebarMenuItems), []);
-  const selectedKeys = useMemo(() => findSelectedKey(sidebarMenuItems, pathname), [pathname]);
-  const defaultOpenKeys = useMemo(() => findOpenKeys(sidebarMenuItems, pathname), [pathname]);
+  // 根據角色過濾選單
+  const filteredMenuItems = useMemo(
+    () => filterMenuByRole(sidebarMenuItems, role),
+    [role]
+  );
+
+  const menuItems = useMemo(() => toAntdMenuItems(filteredMenuItems), [filteredMenuItems]);
+  const selectedKeys = useMemo(() => findSelectedKey(filteredMenuItems, pathname), [filteredMenuItems, pathname]);
+  const defaultOpenKeys = useMemo(() => findOpenKeys(filteredMenuItems, pathname), [filteredMenuItems, pathname]);
 
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
-    const path = findPathByKey(sidebarMenuItems, key);
+    const path = findPathByKey(filteredMenuItems, key);
     if (path) {
       router.push(path);
     }
