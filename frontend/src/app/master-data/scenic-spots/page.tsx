@@ -1,0 +1,6 @@
+'use client';
+/** A11. 旅遊景點 | L_scen.asp | DB: scenic_spots */
+import React from 'react'; import { Form, Input, Tag } from 'antd'; import type { ColumnsType } from 'antd/es/table'; import PageShell from '@/components/page-shell/PageShell'; import { mockScenicSpots } from '@/mock/master-data'; import type { ScenicSpot } from '@/types';
+const columns: ColumnsType<ScenicSpot> = [{ title: '代碼', dataIndex: 'ITN_CD', width: 80 },{ title: '景點名稱', dataIndex: 'ITN_NM', width: 180 },{ title: '國家', dataIndex: 'NATN_CD', width: 80 },{ title: '城市', dataIndex: 'CITY_CD', width: 80 },{ title: '描述', dataIndex: 'ITN_DESC', width: 200 },{ title: '狀態', dataIndex: 'INVALID_FG', width: 80, render: (v: boolean) => <Tag color={v ? 'red' : 'green'}>{v ? '停用' : '啟用'}</Tag> }];
+const formContent = (<>{/* === [API] POST/PUT /api/scenic-spots === DB: INSERT/UPDATE scenic_spots === */}<Form.Item name="ITN_NM" label="景點名稱" rules={[{ required: true }]}><Input /></Form.Item><Form.Item name="NATN_CD" label="國家代碼"><Input /></Form.Item><Form.Item name="CITY_CD" label="城市代碼"><Input /></Form.Item><Form.Item name="ITN_DESC" label="描述"><Input.TextArea rows={3} /></Form.Item></>);
+export default function Page() { return <PageShell title="旅遊景點管理" columns={columns} dataSource={mockScenicSpots as unknown as ScenicSpot[]} rowKey="ITN_CD" formContent={formContent} />; }

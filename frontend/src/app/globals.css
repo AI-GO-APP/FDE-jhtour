@@ -1,0 +1,72 @@
+/* 全域樣式重設 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --font-sans: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f5f5f5;
+}
+
+/* Ant Design 覆寫 */
+.ant-layout {
+  min-height: 100vh;
+}
+
+/* 隱藏 Ant Design Sider 預設觸發器（改用 Header 按鈕控制） */
+.ant-layout-sider-trigger {
+  display: none !important;
+}
+
+/* 表格通用樣式 */
+.ant-table-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 搜尋面板摺疊過渡 */
+.filter-panel-enter {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+.filter-panel-enter-active {
+  max-height: 500px;
+  opacity: 1;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+/* 通用頁面標題 */
+.page-title {
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #262626;
+}
+
+/* 表格操作列 */
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* 卡片陰影效果 */
+.shadow-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+}

@@ -1,0 +1,6 @@
+'use client';
+/** A10. 租車公司 | L_car.asp | DB: car_rentals */
+import React from 'react'; import { Form, Input, Tag } from 'antd'; import type { ColumnsType } from 'antd/es/table'; import PageShell from '@/components/page-shell/PageShell'; import { mockCarRentals } from '@/mock/master-data'; import type { CarRental } from '@/types';
+const columns: ColumnsType<CarRental> = [{ title: '代碼', dataIndex: 'CAR_CD', width: 90 },{ title: '名稱', dataIndex: 'CAR_CNM', width: 180 },{ title: '聯絡人', dataIndex: 'CTC_NM', width: 100 },{ title: '警示', dataIndex: 'ALRT_DR', width: 120 },{ title: '備註', dataIndex: 'MEMO', width: 150 },{ title: '狀態', dataIndex: 'INVALID_FG', width: 80, render: (v: boolean) => <Tag color={v ? 'red' : 'green'}>{v ? '停用' : '啟用'}</Tag> }];
+const formContent = (<>{/* === [API] POST/PUT /api/car-rentals === DB: INSERT/UPDATE car_rentals === */}<Form.Item name="CAR_CNM" label="公司名稱" rules={[{ required: true }]}><Input /></Form.Item><Form.Item name="CTC_NM" label="聯絡人"><Input /></Form.Item><Form.Item name="ALRT_DR" label="警示訊息"><Input /></Form.Item><Form.Item name="MEMO" label="備註"><Input.TextArea rows={2} /></Form.Item></>);
+export default function Page() { return <PageShell title="租車公司管理" columns={columns} dataSource={mockCarRentals as unknown as CarRental[]} rowKey="CAR_CD" formContent={formContent} />; }
