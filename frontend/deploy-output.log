@@ -1,0 +1,52 @@
+=== Step 1: Generate SSH Keys ===
+=== Step 2: Configure SSH Host ===
+=== Step 3: Fetch the generated Public Key ===
+---PUBKEY_START---
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK0uG6WbwMbIH3pPlI5gkvuoCQtrGtseUxeWnPCUEGlU deploy@staging-vm
+---PUBKEY_END---
+=== Step 4: Fetch the generated Private Key ===
+---PRIVKEY_START---
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACCtLhulm8DGyB96T5SOYJL7qAkLaxrbHlMXlpzwlBBpVAAAAJgbkgEMG5IB
+DAAAAAtzc2gtZWQyNTUxOQAAACCtLhulm8DGyB96T5SOYJL7qAkLaxrbHlMXlpzwlBBpVA
+AAAEAqRcnItrNrtXRymYFzz7F3DyJaJ6t4vWaSCdlklo+PMK0uG6WbwMbIH3pPlI5gkvuo
+CQtrGtseUxeWnPCUEGlUAAAAEWRlcGxveUBzdGFnaW5nLXZtAQIDBA==
+-----END OPENSSH PRIVATE KEY-----
+---PRIVKEY_END---
+=== Step 5: Setup Opt Apps Dir ===
+=== Step 6: Clone Git ===
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+Initialized empty Git repository in /opt/apps/FDE-jhtour/.git/
+=== Step 7: Create .env ===
+=== Step 8: Configure Nginx ===
+=== Step 9: Configure SSL with Certbot ===
+Saving debug log to /var/log/letsencrypt/letsencrypt.log
+Requesting a certificate for jhtour.staging.ai-go.app
+
+Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/jhtour.staging.ai-go.app/fullchain.pem
+Key is saved at:         /etc/letsencrypt/live/jhtour.staging.ai-go.app/privkey.pem
+This certificate expires on 2026-06-27.
+These files will be updated when the certificate renews.
+Certbot has set up a scheduled task to automatically renew this certificate in the background.
+
+Deploying certificate
+Successfully deployed certificate for jhtour.staging.ai-go.app to /etc/nginx/sites-enabled/jhtour
+Congratulations! You have successfully enabled HTTPS on https://jhtour.staging.ai-go.app
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+If you like Certbot, please consider supporting our work by:
+ * Donating to ISRG / Let's Encrypt:   https://letsencrypt.org/donate
+ * Donating to EFF:                    https://eff.org/donate-le
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ALL_DONE

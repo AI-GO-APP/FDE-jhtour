@@ -23,4 +23,4 @@ jobs:
           cd /opt/apps/FDE-jhtour
           git fetch origin main
           git reset --hard FETCH_HEAD
-          docker compose -f docker-compose.staging.yml up -d --build
+          docker-compose -f docker-compose.staging.yml up -d --build
