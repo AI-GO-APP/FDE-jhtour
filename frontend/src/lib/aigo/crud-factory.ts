@@ -55,14 +55,14 @@ export const TABLE_SCHEMAS: Record<string, TableSchema> = {
   },
   sale_orders: {
     fields: {
-      name:        { required: true, type: 'string' },
-      customer_id: { required: true, type: 'string', fk: 'customers.id' },
+      partner_id:  { required: true, type: 'string', fk: 'customers.id' },
+      date_order:  { required: true, type: 'string' },
     },
   },
   purchase_orders: {
     fields: {
-      name:        { required: true, type: 'string' },
-      supplier_id: { required: true, type: 'string', fk: 'suppliers.id' },
+      partner_id:  { required: true, type: 'string', fk: 'suppliers.id' },
+      date_order:  { required: true, type: 'string' },
     },
   },
   hr_employees: {
@@ -72,8 +72,8 @@ export const TABLE_SCHEMAS: Record<string, TableSchema> = {
   },
   account_moves: {
     fields: {
-      name:      { required: true, type: 'string' },
       move_type: { required: true, type: 'string', enum: ['entry', 'out_invoice', 'in_invoice', 'out_refund', 'in_refund'] },
+      date:      { required: true, type: 'string' },
     },
   },
   crm_leads: {
@@ -88,7 +88,7 @@ export const TABLE_SCHEMAS: Record<string, TableSchema> = {
   },
   announcements: {
     fields: {
-      name: { required: true, type: 'string' },
+      title: { required: true, type: 'string' },
     },
   },
 };

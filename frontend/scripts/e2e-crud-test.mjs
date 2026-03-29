@@ -50,25 +50,24 @@ const ENDPOINTS = {
       updateField: 'name', updateValue: `E2E商機_已更新_${TS}` },
 
     { name: '公告 (announcements)', path: '/api/announcements',
-      createData: { name: `E2E公告_${TS}` },
-      updateField: 'name', updateValue: `E2E公告_已更新_${TS}` },
+      createData: { title: `E2E公告_${TS}` },
+      updateField: 'title', updateValue: `E2E公告_已更新_${TS}` },
   ],
   // ===== FK 依賴表（需先有 customer/supplier）=====
   fkDependent: [
     { name: '銷售訂單 (sale-orders)', path: '/api/sale-orders',
-      createDataFn: () => ({ name: `SO-E2E-${TS}`, customer_id: testCustomerId, state: 'draft' }),
-      updateField: 'name', updateValue: `SO-E2E-已更新_${TS}` },
+      createDataFn: () => ({ partner_id: testCustomerId, date_order: '2026-03-29', state: 'draft' }),
+      updateField: 'state', updateValue: 'draft' },
 
     { name: '採購訂單 (purchase-orders)', path: '/api/purchase-orders',
-      createDataFn: () => ({ name: `PO-E2E-${TS}`, supplier_id: testSupplierId, state: 'draft' }),
-      updateField: 'name', updateValue: `PO-E2E-已更新_${TS}` },
-  ],
-  // ===== 帳務（引用需 create 權限）=====
-  permissionLimited: [
-    { name: '帳務 (accounting)', path: '/api/accounting', limitedOp: 'create',
-      createData: { name: `INV-E2E-${TS}`, move_type: 'entry', state: 'draft' },
+      createDataFn: () => ({ partner_id: testSupplierId, date_order: '2026-03-29', state: 'draft' }),
       updateField: 'state', updateValue: 'draft' },
+
+    { name: '帳務 (accounting)', path: '/api/accounting',
+      createData: { move_type: 'entry', date: '2026-03-29' },
+      updateField: 'date', updateValue: '2026-03-30' },
   ],
+  permissionLimited: [],
   // ===== 自訂表 =====
   custom: [
     { name: '行程模板 (itinerary-templates)', path: '/api/custom/itinerary-templates',
