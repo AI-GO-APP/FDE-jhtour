@@ -2,8 +2,12 @@ const { Client } = require('ssh2');
 
 const conn = new Client();
 const commands = `
-echo "=== Check docker-compose ==="
-docker-compose --version || echo "No docker-compose"
+echo "=== Manual Deploy ==="
+cd /opt/apps/FDE-jhtour
+git fetch origin main || echo "Git fetch failed"
+git reset --hard FETCH_HEAD || echo "Git reset failed"
+ls -la
+docker-compose -f docker-compose.staging.yml up -d --build
 `;
 
 conn.on('ready', () => {
