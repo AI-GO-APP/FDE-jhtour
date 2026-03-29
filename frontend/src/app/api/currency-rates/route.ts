@@ -1,6 +1,7 @@
 /**
- * 匯率歷史 API
+ * 匯率歷史 API（唯讀 — 全域參考表）
  */
 import { createListRouteHandlers } from '@/lib/aigo/crud-factory';
 
-export const { GET, POST } = createListRouteHandlers('currency_rates');
+const handlers = createListRouteHandlers('currency_rates');
+export const GET = handlers.GET;

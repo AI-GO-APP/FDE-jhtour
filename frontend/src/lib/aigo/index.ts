@@ -22,6 +22,10 @@ export {
   createDetailRouteHandlers,
   createCustomTableRouteHandlers,
   createCustomTableDetailRouteHandlers,
+  validateRequiredFields,
+  isReadonlyTable,
+  getTableSchema,
+  TABLE_SCHEMAS,
 } from './crud-factory';
 
 // 型別匯出
