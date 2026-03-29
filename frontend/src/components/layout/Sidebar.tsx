@@ -36,7 +36,7 @@ function filterMenuByRole(items: SidebarMenuItem[], role: Role): SidebarMenuItem
         const readonly = !isRouteEditable(role, item.path);
         acc.push({
           ...item,
-          label: readonly ? `${item.label} 👁️` : item.label,
+          label: readonly ? `${item.label} (唯讀)` : item.label,
         });
       }
     } else if (item.children) {

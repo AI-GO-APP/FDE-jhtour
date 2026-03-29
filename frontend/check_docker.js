@@ -2,10 +2,10 @@ const { Client } = require('ssh2');
 
 const conn = new Client();
 const commands = `
-echo "=== Manual Deploy ==="
 cd /opt/apps/FDE-jhtour
-git fetch origin main || echo "Git fetch failed"
-git reset --hard FETCH_HEAD || echo "Git reset failed"
+git fetch origin main
+git checkout main || git switch -c main
+git reset --hard origin/main
 ls -la
 docker-compose -f docker-compose.staging.yml up -d --build
 `;

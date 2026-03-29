@@ -1,6 +1,34 @@
 'use client';
-/** A19. 幣別匯率 | L_curr.asp | DB: currencies */
-import React from 'react'; import { Form, Input, InputNumber } from 'antd'; import type { ColumnsType } from 'antd/es/table'; import PageShell from '@/components/page-shell/PageShell'; import { mockCurrencies } from '@/mock/master-data'; import type { Currency } from '@/types';
-const columns: ColumnsType<Currency> = [{ title: '幣別代碼', dataIndex: 'CURR_CD', width: 100 },{ title: '幣別名稱', dataIndex: 'CURR_NM', width: 120 },{ title: '匯率(兌TWD)', dataIndex: 'EXCH_RATE', width: 120 },{ title: '生效日', dataIndex: 'EFF_DT', width: 120 }];
-const formContent = (<>{/* === [API] POST/PUT /api/currencies === DB: INSERT/UPDATE currencies === */}<Form.Item name="CURR_CD" label="幣別代碼" rules={[{ required: true }]}><Input maxLength={3} /></Form.Item><Form.Item name="CURR_NM" label="幣別名稱"><Input /></Form.Item><Form.Item name="EXCH_RATE" label="匯率"><InputNumber style={{width:'100%'}} step={0.01} /></Form.Item></>);
-export default function Page() { return <PageShell title="幣別匯率管理" columns={columns} dataSource={mockCurrencies as unknown as Currency[]} rowKey="CURR_CD" formContent={formContent} />; }
+/** 幣別匯率 | API: /api/currencies */
+import React from 'react';
+import { Form, Input } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import PageShell from '@/components/page-shell/PageShell';
+
+const columns: ColumnsType<Record<string, unknown>> = [
+  { title: '幣別代碼', dataIndex: 'name', width: 100 },
+  { title: '符號', dataIndex: 'symbol', width: 60 },
+  { title: '匯率', dataIndex: 'rate', width: 100 },
+];
+
+const formContent = (
+  <>
+    <Form.Item name="name" label="幣別名稱" rules={[{ required: true }]}><Input /></Form.Item>
+    <Form.Item name="symbol" label="符號"><Input /></Form.Item>
+    <Form.Item name="rate" label="匯率"><Input /></Form.Item>
+  </>
+);
+
+export default function Page() {
+  return (
+    <PageShell
+      title="幣別匯率"
+      columns={columns}
+      apiPath="/api/currencies"
+      rowKey="id"
+      formContent={formContent}
+      searchPlaceholder="搜尋幣別匯率..."
+      showExport
+    />
+  );
+}

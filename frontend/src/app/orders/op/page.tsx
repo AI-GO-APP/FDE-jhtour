@@ -1,9 +1,34 @@
 'use client';
-/** B2. OP 人員訂單作業 | L_order_op.asp — 同 B1 但 OP 視角 */
-import React from 'react'; import { Tag } from 'antd'; import type { ColumnsType } from 'antd/es/table'; import PageShell from '@/components/page-shell/PageShell'; import { mockOrders } from '@/mock/all-modules'; import { ORDER_STATUS_COLOR } from '@/lib/constants'; import type { Order } from '@/types/orders';
-const columns: ColumnsType<Order> = [
-  { title: '訂單編號', dataIndex: 'ORD_NO', width: 180 },{ title: '產品', dataIndex: 'PROD_TP', width: 80 },{ title: '旅客', dataIndex: 'PAX_CD', width: 80 },
-  { title: '團號', dataIndex: 'GRUP_CD', width: 130 },{ title: '出發日', dataIndex: 'DEP_DT', width: 110 },{ title: '金額', dataIndex: 'AMT', width: 110, render: (v: number) => `NT$ ${v?.toLocaleString()}` },
-  { title: 'OP承辦', dataIndex: 'OP_EMP_CD', width: 80 },{ title: '狀態', dataIndex: 'ORD_STUS', width: 80, render: (v: string) => <Tag color={ORDER_STATUS_COLOR[v]}>{v}</Tag> },
+/** OP 人員訂單作業 | API: /api/sale-orders */
+import React from 'react';
+import { Form, Input } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import PageShell from '@/components/page-shell/PageShell';
+
+const columns: ColumnsType<Record<string, unknown>> = [
+  { title: '訂單編號', dataIndex: 'name', width: 140 },
+  { title: '客戶', dataIndex: 'partner_id', width: 150 },
+  { title: '金額', dataIndex: 'amount_total', width: 120 },
+  { title: '狀態', dataIndex: 'state', width: 100 },
 ];
-export default function Page() { return <PageShell<Order> title="OP 人員訂單作業" columns={columns} dataSource={mockOrders as unknown as Order[]} rowKey="ORD_NO" searchPlaceholder="搜尋訂單..." />; }
+
+const formContent = (
+  <>
+    <Form.Item name="partner_id" label="客戶" rules={[{ required: true }]}><Input /></Form.Item>
+    <Form.Item name="note" label="備註"><Input.TextArea rows={2} /></Form.Item>
+  </>
+);
+
+export default function Page() {
+  return (
+    <PageShell
+      title="OP 人員訂單作業"
+      columns={columns}
+      apiPath="/api/sale-orders"
+      rowKey="id"
+      formContent={formContent}
+      searchPlaceholder="搜尋OP 人員訂單作業..."
+      showExport
+    />
+  );
+}

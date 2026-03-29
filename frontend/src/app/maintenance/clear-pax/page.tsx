@@ -1,18 +1,24 @@
 'use client';
-/** 清除旅客個資 | L_paxinfo_clear.asp */
+/** 清除旅客個資 */
 import React from 'react';
-import { Typography, Card, DatePicker, Button, Form, Input, Alert, Popconfirm, message } from 'antd';
-import { DeleteOutlined, WarningOutlined } from '@ant-design/icons';
-const { Title } = Typography;
+import type { ColumnsType } from 'antd/es/table';
+import PageShell from '@/components/page-shell/PageShell';
+
+const columns: ColumnsType<Record<string, unknown>> = [
+  { title: '編號', dataIndex: 'id', width: 100 },
+  { title: '名稱', dataIndex: 'name', width: 200 },
+  { title: '狀態', dataIndex: 'status', width: 100 },
+  { title: '日期', dataIndex: 'create_date', width: 120 },
+];
+
 export default function Page() {
-  return (<div><Title level={4}>清除旅客個資</Title>
-    <Alert type="warning" message="此操作將永久刪除資料，請確認後再執行" showIcon icon={<WarningOutlined />} style={{marginBottom:16}} />
-    <Card>
-    {/* === [API] POST /api/maintenance/clear-pax === DB: DELETE FROM data_clear WHERE ... === TODO: [替換] === */}
-    <Form layout="vertical">
-      <Form.Item label="基準日期" rules={[{required:true}]}><DatePicker style={{width:300}} /></Form.Item>
-      <Form.Item label="備註"><Input.TextArea rows={3} /></Form.Item>
-      <Popconfirm title="確定執行清除？此操作不可復原！" onConfirm={()=>message.success('清除完成 (Mock)')}>
-        <Button type="primary" danger icon={<DeleteOutlined />}>執行清除</Button></Popconfirm>
-    </Form></Card></div>);
+  return (
+    <PageShell
+      title="清除旅客個資"
+      columns={columns}
+      dataSource={[]}
+      rowKey="id"
+      searchPlaceholder="搜尋清除旅客個資..."
+    />
+  );
 }

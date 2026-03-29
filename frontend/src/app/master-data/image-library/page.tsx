@@ -1,11 +1,24 @@
 'use client';
-/** A28. 圖庫管理 | L_ImgDB.asp */
-import React from 'react'; import { Typography, Card, Upload, Button, message } from 'antd'; import { UploadOutlined, PictureOutlined } from '@ant-design/icons';
-const { Title } = Typography;
+/** 圖庫管理 */
+import React from 'react';
+import type { ColumnsType } from 'antd/es/table';
+import PageShell from '@/components/page-shell/PageShell';
+
+const columns: ColumnsType<Record<string, unknown>> = [
+  { title: '編號', dataIndex: 'id', width: 100 },
+  { title: '名稱', dataIndex: 'name', width: 200 },
+  { title: '狀態', dataIndex: 'status', width: 100 },
+  { title: '日期', dataIndex: 'create_date', width: 120 },
+];
+
 export default function Page() {
-  return (<div><Title level={4}>圖庫管理</Title><Card>
-    {/* === [API] POST /api/images/upload === DB: images table === TODO: [替換] === */}
-    <Upload listType="picture-card" beforeUpload={()=>{message.info('上傳功能 (待接後端)');return false;}}>
-      <div><PictureOutlined /><div style={{marginTop:8}}>上傳圖片</div></div>
-    </Upload></Card></div>);
+  return (
+    <PageShell
+      title="圖庫管理"
+      columns={columns}
+      dataSource={[]}
+      rowKey="id"
+      searchPlaceholder="搜尋圖庫管理..."
+    />
+  );
 }

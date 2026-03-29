@@ -1,28 +1,42 @@
 'use client';
-/** 開團作業 | L_crgroup_main.asp | DB: groups */
+/** 開團作業 | API: /api/custom/departure-schedules */
 import React from 'react';
-import { Typography, Table, Button, Space, Tag, message } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-const { Title } = Typography;
+import { Form, Input } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import PageShell from '@/components/page-shell/PageShell';
 
-// === [API] GET /api/products/create-group === DB: groups === TODO: [替換] 改為實際 API ===
-const mockData = Array.from({length:10},(_,i)=>({ key:String(i+1), id:'GRU' + String(i+1).padStart(4,'0'), name:'開團作業項目' + (i+1), status:i%3===0?'停用':'啟用', date:'2026-03-' + String(20+i).padStart(2,'0') }));
-const columns = [
-  { title: '編號', dataIndex: 'id', width: 120 },
-  { title: '名稱', dataIndex: 'name', width: 200 },
-  { title: '日期', dataIndex: 'date', width: 120 },
-  { title: '狀態', dataIndex: 'status', width: 80, render: (v:string) => <Tag color={v==='啟用'?'green':'red'}>{v}</Tag> },
-  { title: '操作', key: 'action', width: 120, render: () => <Space size="small"><Button type="text" size="small" icon={<EditOutlined />} /><Button type="text" size="small" danger icon={<DeleteOutlined />} /></Space> },
+const columns: ColumnsType<Record<string, unknown>> = [
+  { title: '團號', dataIndex: 'group_code', width: 140 },
+  { title: '出發日', dataIndex: 'departure_date', width: 110 },
+  { title: '回程日', dataIndex: 'return_date', width: 110 },
+  { title: '售價', dataIndex: 'price', width: 100 },
+  { title: '報名', dataIndex: 'current_pax', width: 80 },
+  { title: '上限', dataIndex: 'max_pax', width: 80 },
+  { title: '狀態', dataIndex: 'status', width: 90 },
 ];
 
+const formContent = (
+  <>
+    <Form.Item name="group_code" label="團號" rules={[{ required: true }]}><Input /></Form.Item>
+    <Form.Item name="departure_date" label="出發日" rules={[{ required: true }]}><Input /></Form.Item>
+    <Form.Item name="return_date" label="回程日"><Input /></Form.Item>
+    <Form.Item name="min_pax" label="最低成團"><Input /></Form.Item>
+    <Form.Item name="max_pax" label="上限人數"><Input /></Form.Item>
+    <Form.Item name="price" label="售價"><Input /></Form.Item>
+    <Form.Item name="status" label="狀態"><Input /></Form.Item>
+  </>
+);
+
 export default function Page() {
-  return (<div>
-    <div className="table-toolbar"><Title level={4} style={{margin:0}}>開團作業</Title>
-    <Button type="primary" icon={<PlusOutlined />} onClick={()=>message.info('新增功能 (待接後端)')}>新增</Button></div>
-    {/* === [API] POST /api/products/create-group === DB: INSERT INTO groups === TODO: [替換] === */}
-    {/* === [API] PUT /api/products/create-group/:id === DB: UPDATE groups SET ... === TODO: [替換] === */}
-    {/* === [API] DELETE /api/products/create-group/:id === DB: DELETE FROM groups WHERE GRUP_CD=:id === TODO: [替換] === */}
-    <Table dataSource={mockData} columns={columns} rowKey="key" size="middle" bordered
-      pagination={{ defaultPageSize:20, showSizeChanger:true, showTotal:(t:number,r:number[])=>'第 ' + r[0] + '~' + r[1] + ' 筆 / 共 ' + t + ' 筆' }} />
-  </div>);
+  return (
+    <PageShell
+      title="開團作業"
+      columns={columns}
+      apiPath="/api/custom/departure-schedules"
+      rowKey="id"
+      formContent={formContent}
+      searchPlaceholder="搜尋開團作業..."
+      showExport
+    />
+  );
 }

@@ -1,6 +1,35 @@
 'use client';
-/** A14. 領隊及導遊 | L_tldr.asp | DB: tour_leaders */
-import React from 'react'; import { Form, Input, Select, InputNumber, Tag } from 'antd'; import type { ColumnsType } from 'antd/es/table'; import PageShell from '@/components/page-shell/PageShell'; import { mockTourLeaders } from '@/mock/master-data'; import type { TourLeader } from '@/types';
-const columns: ColumnsType<TourLeader> = [{ title: '代碼', dataIndex: 'TLDR_CD', width: 80 },{ title: '姓名', dataIndex: 'TLDR_NM', width: 100 },{ title: '類型', dataIndex: 'TLDR_TP', width: 80, render: (v: string) => <Tag color={v === '領隊' ? 'blue' : v === '導遊' ? 'green' : 'orange'}>{v}</Tag> },{ title: '部門', dataIndex: 'DEPT_CD', width: 80 },{ title: '保險類型', dataIndex: 'INS_TP', width: 80 },{ title: '排序', dataIndex: 'SORT_NO', width: 60 }];
-const formContent = (<>{/* === [API] POST/PUT /api/tour-leaders === DB: INSERT/UPDATE tour_leaders === */}<Form.Item name="TLDR_NM" label="姓名" rules={[{ required: true }]}><Input /></Form.Item><Form.Item name="TLDR_TP" label="類型"><Select options={[{label:'領隊',value:'領隊'},{label:'導遊',value:'導遊'},{label:'司機',value:'司機'}]} /></Form.Item><Form.Item name="INS_TP" label="保險類型"><Input /></Form.Item><Form.Item name="SORT_NO" label="派團排序"><InputNumber min={1} style={{width:'100%'}} /></Form.Item></>);
-export default function Page() { return <PageShell title="領隊及導遊管理" columns={columns} dataSource={mockTourLeaders as unknown as TourLeader[]} rowKey="TLDR_CD" formContent={formContent} />; }
+/** 領隊及導遊 | API: /api/hr */
+import React from 'react';
+import { Form, Input } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import PageShell from '@/components/page-shell/PageShell';
+
+const columns: ColumnsType<Record<string, unknown>> = [
+  { title: '編號', dataIndex: 'code', width: 100 },
+  { title: '姓名', dataIndex: 'name', width: 120 },
+  { title: 'Email', dataIndex: 'work_email', width: 180 },
+  { title: '電話', dataIndex: 'work_phone', width: 130 },
+];
+
+const formContent = (
+  <>
+    <Form.Item name="name" label="姓名" rules={[{ required: true }]}><Input /></Form.Item>
+    <Form.Item name="work_email" label="Email"><Input /></Form.Item>
+    <Form.Item name="work_phone" label="電話"><Input /></Form.Item>
+  </>
+);
+
+export default function Page() {
+  return (
+    <PageShell
+      title="領隊及導遊"
+      columns={columns}
+      apiPath="/api/hr"
+      rowKey="id"
+      formContent={formContent}
+      searchPlaceholder="搜尋領隊及導遊..."
+      showExport
+    />
+  );
+}

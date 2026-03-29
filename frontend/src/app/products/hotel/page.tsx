@@ -1,28 +1,43 @@
 'use client';
-/** 旅館資料管理 | L_hotel.asp | DB: hotels */
+/** 旅館資料管理 | API: /api/custom/hotel-contracts */
 import React from 'react';
-import { Typography, Table, Button, Space, Tag, message } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-const { Title } = Typography;
+import { Form, Input } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import PageShell from '@/components/page-shell/PageShell';
 
-// === [API] GET /api/products/hotel === DB: hotels === TODO: [替換] 改為實際 API ===
-const mockData = Array.from({length:10},(_,i)=>({ key:String(i+1), id:'HOT' + String(i+1).padStart(4,'0'), name:'旅館資料管理項目' + (i+1), status:i%3===0?'停用':'啟用', date:'2026-03-' + String(20+i).padStart(2,'0') }));
-const columns = [
-  { title: '編號', dataIndex: 'id', width: 120 },
-  { title: '名稱', dataIndex: 'name', width: 200 },
-  { title: '日期', dataIndex: 'date', width: 120 },
-  { title: '狀態', dataIndex: 'status', width: 80, render: (v:string) => <Tag color={v==='啟用'?'green':'red'}>{v}</Tag> },
-  { title: '操作', key: 'action', width: 120, render: () => <Space size="small"><Button type="text" size="small" icon={<EditOutlined />} /><Button type="text" size="small" danger icon={<DeleteOutlined />} /></Space> },
+const columns: ColumnsType<Record<string, unknown>> = [
+  { title: '飯店名稱', dataIndex: 'hotel_name', width: 200 },
+  { title: '城市', dataIndex: 'city', width: 100 },
+  { title: '國家', dataIndex: 'country', width: 100 },
+  { title: '房型', dataIndex: 'room_type', width: 80 },
+  { title: '房價', dataIndex: 'rate', width: 100 },
+  { title: '狀態', dataIndex: 'status', width: 80 },
 ];
 
+const formContent = (
+  <>
+    <Form.Item name="hotel_name" label="飯店名稱" rules={[{ required: true }]}><Input /></Form.Item>
+    <Form.Item name="city" label="城市"><Input /></Form.Item>
+    <Form.Item name="country" label="國家"><Input /></Form.Item>
+    <Form.Item name="room_type" label="房型"><Input /></Form.Item>
+    <Form.Item name="rate" label="房價"><Input /></Form.Item>
+    <Form.Item name="currency" label="幣別"><Input /></Form.Item>
+    <Form.Item name="contract_start" label="合約起日"><Input /></Form.Item>
+    <Form.Item name="contract_end" label="合約訖日"><Input /></Form.Item>
+    <Form.Item name="status" label="狀態"><Input /></Form.Item>
+  </>
+);
+
 export default function Page() {
-  return (<div>
-    <div className="table-toolbar"><Title level={4} style={{margin:0}}>旅館資料管理</Title>
-    <Button type="primary" icon={<PlusOutlined />} onClick={()=>message.info('新增功能 (待接後端)')}>新增</Button></div>
-    {/* === [API] POST /api/products/hotel === DB: INSERT INTO hotels === TODO: [替換] === */}
-    {/* === [API] PUT /api/products/hotel/:id === DB: UPDATE hotels SET ... === TODO: [替換] === */}
-    {/* === [API] DELETE /api/products/hotel/:id === DB: DELETE FROM hotels WHERE HOTEL_CD=:id === TODO: [替換] === */}
-    <Table dataSource={mockData} columns={columns} rowKey="key" size="middle" bordered
-      pagination={{ defaultPageSize:20, showSizeChanger:true, showTotal:(t:number,r:number[])=>'第 ' + r[0] + '~' + r[1] + ' 筆 / 共 ' + t + ' 筆' }} />
-  </div>);
+  return (
+    <PageShell
+      title="旅館資料管理"
+      columns={columns}
+      apiPath="/api/custom/hotel-contracts"
+      rowKey="id"
+      formContent={formContent}
+      searchPlaceholder="搜尋旅館資料管理..."
+      showExport
+    />
+  );
 }
