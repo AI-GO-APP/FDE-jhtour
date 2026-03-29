@@ -1,24 +1,26 @@
 'use client';
-/** 當地套件及自費 */
+/** 國旅行程 | API: /api/custom/itinerary-templates */
 import React from 'react';
+
 import type { ColumnsType } from 'antd/es/table';
 import PageShell from '@/components/page-shell/PageShell';
 
 const columns: ColumnsType<Record<string, unknown>> = [
-  { title: '編號', dataIndex: 'id', width: 100 },
-  { title: '名稱', dataIndex: 'name', width: 200 },
+  { title: '行程名稱', dataIndex: 'name', width: 200 },
+  { title: '目的地', dataIndex: 'destination', width: 150 },
+  { title: '天數', dataIndex: 'duration_days', width: 80 },
   { title: '狀態', dataIndex: 'status', width: 100 },
-  { title: '日期', dataIndex: 'create_date', width: 120 },
 ];
 
 export default function Page() {
   return (
     <PageShell
-      title="當地套件及自費"
+      title="國旅行程"
       columns={columns}
-      dataSource={[]}
+      apiPath="/api/custom/itinerary-templates"
       rowKey="id"
-      searchPlaceholder="搜尋當地套件及自費..."
+      searchPlaceholder="搜尋國旅行程..."
+      showExport
     />
   );
 }

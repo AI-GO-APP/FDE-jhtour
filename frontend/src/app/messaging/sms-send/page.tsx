@@ -1,24 +1,23 @@
 'use client';
-/** 簡訊發送 */
+/** 發送簡訊 | API: /api/announcements */
 import React from 'react';
+
 import type { ColumnsType } from 'antd/es/table';
 import PageShell from '@/components/page-shell/PageShell';
 
 const columns: ColumnsType<Record<string, unknown>> = [
-  { title: '編號', dataIndex: 'id', width: 100 },
-  { title: '名稱', dataIndex: 'name', width: 200 },
-  { title: '狀態', dataIndex: 'status', width: 100 },
-  { title: '日期', dataIndex: 'create_date', width: 120 },
+  { title: '標題', dataIndex: 'title', width: 200 },
 ];
 
 export default function Page() {
   return (
     <PageShell
-      title="簡訊發送"
+      title="發送簡訊"
       columns={columns}
-      dataSource={[]}
+      apiPath="/api/announcements"
       rowKey="id"
-      searchPlaceholder="搜尋簡訊發送..."
+      searchPlaceholder="搜尋發送簡訊..."
+      showExport
     />
   );
 }

@@ -1,24 +1,30 @@
 'use client';
-/** 使用者群組管理 */
+/** 使用者群組 | API: /api/hr/departments */
 import React from 'react';
+import { Form, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import PageShell from '@/components/page-shell/PageShell';
 
 const columns: ColumnsType<Record<string, unknown>> = [
-  { title: '編號', dataIndex: 'id', width: 100 },
-  { title: '名稱', dataIndex: 'name', width: 200 },
-  { title: '狀態', dataIndex: 'status', width: 100 },
-  { title: '日期', dataIndex: 'create_date', width: 120 },
+  { title: '部門名稱', dataIndex: 'name', width: 200 },
 ];
+
+const formContent = (
+  <>
+    <Form.Item name="name" label="群組名稱" rules={[{ required: true }]}><Input /></Form.Item>
+  </>
+);
 
 export default function Page() {
   return (
     <PageShell
-      title="使用者群組管理"
+      title="使用者群組"
       columns={columns}
-      dataSource={[]}
+      apiPath="/api/hr/departments"
       rowKey="id"
-      searchPlaceholder="搜尋使用者群組管理..."
+      formContent={formContent}
+      searchPlaceholder="搜尋使用者群組..."
+      showExport
     />
   );
 }

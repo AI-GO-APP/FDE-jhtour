@@ -1,24 +1,25 @@
 'use client';
-/** 票價修改通知 */
+/** 票價異動通知 | API: /api/custom/airline-contracts */
 import React from 'react';
+
 import type { ColumnsType } from 'antd/es/table';
 import PageShell from '@/components/page-shell/PageShell';
 
 const columns: ColumnsType<Record<string, unknown>> = [
-  { title: '編號', dataIndex: 'id', width: 100 },
-  { title: '名稱', dataIndex: 'name', width: 200 },
-  { title: '狀態', dataIndex: 'status', width: 100 },
-  { title: '日期', dataIndex: 'create_date', width: 120 },
+  { title: '航空公司', dataIndex: 'airline_name', width: 200 },
+  { title: '路線', dataIndex: 'route', width: 150 },
+  { title: '費率', dataIndex: 'rate', width: 100 },
 ];
 
 export default function Page() {
   return (
     <PageShell
-      title="票價修改通知"
+      title="票價異動通知"
       columns={columns}
-      dataSource={[]}
+      apiPath="/api/custom/airline-contracts"
       rowKey="id"
-      searchPlaceholder="搜尋票價修改通知..."
+      searchPlaceholder="搜尋票價異動通知..."
+      showExport
     />
   );
 }

@@ -1,24 +1,25 @@
 'use client';
-/** 金流網站設定 */
+/** 幣別設定 | API: /api/currencies */
 import React from 'react';
+
 import type { ColumnsType } from 'antd/es/table';
 import PageShell from '@/components/page-shell/PageShell';
 
 const columns: ColumnsType<Record<string, unknown>> = [
-  { title: '編號', dataIndex: 'id', width: 100 },
-  { title: '名稱', dataIndex: 'name', width: 200 },
-  { title: '狀態', dataIndex: 'status', width: 100 },
-  { title: '日期', dataIndex: 'create_date', width: 120 },
+  { title: '幣別', dataIndex: 'name', width: 100 },
+  { title: '全名', dataIndex: 'full_name', width: 200 },
+  { title: '符號', dataIndex: 'symbol', width: 80 },
 ];
 
 export default function Page() {
   return (
     <PageShell
-      title="金流網站設定"
+      title="幣別設定"
       columns={columns}
-      dataSource={[]}
+      apiPath="/api/currencies"
       rowKey="id"
-      searchPlaceholder="搜尋金流網站設定..."
+      searchPlaceholder="搜尋幣別設定..."
+      showExport
     />
   );
 }

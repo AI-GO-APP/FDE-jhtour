@@ -35,3 +35,9 @@ Thumbs.db
 
 # Scripts (dev only)
 frontend/scripts/generate-pages.js
+frontend/scripts/query-schemas.mjs
+
+# E2E/探查產出物
+e2e-*.txt
+probe-*.txt
+schema-*.txt

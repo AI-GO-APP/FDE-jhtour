@@ -1,14 +1,13 @@
 'use client';
-/** 圖庫管理 */
+/** 圖庫管理 | API: /api/products */
 import React from 'react';
+
 import type { ColumnsType } from 'antd/es/table';
 import PageShell from '@/components/page-shell/PageShell';
 
 const columns: ColumnsType<Record<string, unknown>> = [
-  { title: '編號', dataIndex: 'id', width: 100 },
-  { title: '名稱', dataIndex: 'name', width: 200 },
-  { title: '狀態', dataIndex: 'status', width: 100 },
-  { title: '日期', dataIndex: 'create_date', width: 120 },
+  { title: '產品名稱', dataIndex: 'name', width: 200 },
+  { title: '類型', dataIndex: 'product_type', width: 100 },
 ];
 
 export default function Page() {
@@ -16,9 +15,10 @@ export default function Page() {
     <PageShell
       title="圖庫管理"
       columns={columns}
-      dataSource={[]}
+      apiPath="/api/products"
       rowKey="id"
       searchPlaceholder="搜尋圖庫管理..."
+      showExport
     />
   );
 }

@@ -1,24 +1,25 @@
 'use client';
-/** 團體業績處理 */
+/** 團銷業績 | API: /api/sale-orders */
 import React from 'react';
+
 import type { ColumnsType } from 'antd/es/table';
 import PageShell from '@/components/page-shell/PageShell';
 
 const columns: ColumnsType<Record<string, unknown>> = [
-  { title: '編號', dataIndex: 'id', width: 100 },
-  { title: '名稱', dataIndex: 'name', width: 200 },
-  { title: '狀態', dataIndex: 'status', width: 100 },
-  { title: '日期', dataIndex: 'create_date', width: 120 },
+  { title: '訂單編號', dataIndex: 'name', width: 150 },
+  { title: '日期', dataIndex: 'date_order', width: 120 },
+  { title: '狀態', dataIndex: 'state', width: 100 },
 ];
 
 export default function Page() {
   return (
     <PageShell
-      title="團體業績處理"
+      title="團銷業績"
       columns={columns}
-      dataSource={[]}
+      apiPath="/api/sale-orders"
       rowKey="id"
-      searchPlaceholder="搜尋團體業績處理..."
+      searchPlaceholder="搜尋團銷業績..."
+      showExport
     />
   );
 }

@@ -1,24 +1,26 @@
 'use client';
-/** 團體分房表 */
+/** 房間安排 | API: /api/custom/hotel-contracts */
 import React from 'react';
+
 import type { ColumnsType } from 'antd/es/table';
 import PageShell from '@/components/page-shell/PageShell';
 
 const columns: ColumnsType<Record<string, unknown>> = [
-  { title: '編號', dataIndex: 'id', width: 100 },
-  { title: '名稱', dataIndex: 'name', width: 200 },
+  { title: '飯店', dataIndex: 'hotel_name', width: 200 },
+  { title: '房型', dataIndex: 'room_type', width: 100 },
+  { title: '費率', dataIndex: 'rate', width: 100 },
   { title: '狀態', dataIndex: 'status', width: 100 },
-  { title: '日期', dataIndex: 'create_date', width: 120 },
 ];
 
 export default function Page() {
   return (
     <PageShell
-      title="團體分房表"
+      title="房間安排"
       columns={columns}
-      dataSource={[]}
+      apiPath="/api/custom/hotel-contracts"
       rowKey="id"
-      searchPlaceholder="搜尋團體分房表..."
+      searchPlaceholder="搜尋房間安排..."
+      showExport
     />
   );
 }

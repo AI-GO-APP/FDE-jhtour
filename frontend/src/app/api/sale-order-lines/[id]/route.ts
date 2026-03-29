@@ -1,6 +1,5 @@
-/**
- * 銷售訂單明細 API — 單筆操作
- */
 import { createDetailRouteHandlers } from '@/lib/aigo/crud-factory';
-
-export const { GET, PATCH, DELETE } = createDetailRouteHandlers('sale_order_lines');
+const handlers = createDetailRouteHandlers('sale_order_lines');
+export const GET = handlers.GET;
+export const PATCH = handlers.PATCH;
+export const DELETE = handlers.DELETE;

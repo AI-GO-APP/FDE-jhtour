@@ -91,6 +91,40 @@ export const TABLE_SCHEMAS: Record<string, TableSchema> = {
       title: { required: true, type: 'string' },
     },
   },
+
+  // === 會計子表 ===
+  account_accounts: { readonly: true },   // GET 403，需額外引用授權
+  account_journals: { readonly: true },   // GET 403，需額外引用授權
+  account_taxes:    { readonly: true },    // 可讀但 CREATE 403
+  account_move_lines: { readonly: true },  // GET 403，需額外引用授權
+  account_payments: {
+    fields: {
+      amount:       { required: true, type: 'number' },
+      date:         { required: true, type: 'string' },
+      payment_type: { required: true, type: 'string', enum: ['inbound', 'outbound'] },
+    },
+  },
+
+  // === HR 子表 ===
+  hr_attendances: { readonly: true },     // GET 403，需額外引用授權
+  hr_departments: {
+    fields: {
+      name: { required: true, type: 'string' },
+    },
+  },
+  hr_leaves: {
+    fields: {
+      name: { required: true, type: 'string' },
+    },
+  },
+
+  // === 銷售明細 ===
+  sale_order_lines: {
+    fields: {
+      order_id: { required: true, type: 'string', fk: 'sale_orders.id' },
+      name:     { required: true, type: 'string' },
+    },
+  },
 };
 
 /**

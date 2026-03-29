@@ -1,6 +1,7 @@
 /**
- * 傳票明細行（Account Move Lines）API
+ * account_move_lines（唯讀）
  */
 import { createListRouteHandlers } from '@/lib/aigo/crud-factory';
 
-export const { GET, POST } = createListRouteHandlers('account_move_lines');
+const handlers = createListRouteHandlers('account_move_lines');
+export const GET = handlers.GET;

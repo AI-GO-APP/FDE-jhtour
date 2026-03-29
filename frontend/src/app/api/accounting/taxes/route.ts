@@ -1,6 +1,7 @@
 /**
- * 稅額（Account Taxes）API
+ * account_taxes（唯讀）
  */
 import { createListRouteHandlers } from '@/lib/aigo/crud-factory';
 
-export const { GET, POST } = createListRouteHandlers('account_taxes');
+const handlers = createListRouteHandlers('account_taxes');
+export const GET = handlers.GET;

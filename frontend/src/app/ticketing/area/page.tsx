@@ -1,24 +1,25 @@
 'use client';
-/** 機票行程地區 */
+/** 區域管理 | API: /api/countries */
 import React from 'react';
+
 import type { ColumnsType } from 'antd/es/table';
 import PageShell from '@/components/page-shell/PageShell';
 
 const columns: ColumnsType<Record<string, unknown>> = [
-  { title: '編號', dataIndex: 'id', width: 100 },
-  { title: '名稱', dataIndex: 'name', width: 200 },
-  { title: '狀態', dataIndex: 'status', width: 100 },
-  { title: '日期', dataIndex: 'create_date', width: 120 },
+  { title: '國家', dataIndex: 'name', width: 200 },
+  { title: '代碼', dataIndex: 'code', width: 80 },
+  { title: '電話國碼', dataIndex: 'phone_code', width: 100 },
 ];
 
 export default function Page() {
   return (
     <PageShell
-      title="機票行程地區"
+      title="區域管理"
       columns={columns}
-      dataSource={[]}
+      apiPath="/api/countries"
       rowKey="id"
-      searchPlaceholder="搜尋機票行程地區..."
+      searchPlaceholder="搜尋區域管理..."
+      showExport
     />
   );
 }

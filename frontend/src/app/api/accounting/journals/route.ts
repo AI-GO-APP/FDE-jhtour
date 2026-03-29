@@ -1,6 +1,7 @@
 /**
- * 日記帳（Account Journals）API
+ * account_journals（唯讀）
  */
 import { createListRouteHandlers } from '@/lib/aigo/crud-factory';
 
-export const { GET, POST } = createListRouteHandlers('account_journals');
+const handlers = createListRouteHandlers('account_journals');
+export const GET = handlers.GET;

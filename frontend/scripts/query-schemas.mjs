@@ -1,5 +1,5 @@
 /**
- * 深度探查 — announcements 完整欄位 + sale/purchase 的 FK 名稱
+ * 深度探查可寫子路由表的必填欄位
  */
 const BASE = 'https://ai-go.app/api/v1/open/proxy';
 const API_KEY = 'sk_live_0f9d37c8c8504ab73f15fa9f56494a35607b5f55d5e213f66b790f917d00f4c0';
@@ -9,74 +9,64 @@ const TS = Date.now();
 async function probe(table, data, label) {
   const res = await fetch(`${BASE}/${table}`, { method: 'POST', headers: H, body: JSON.stringify(data) });
   const body = await res.text();
-  if (res.status === 201 || res.status === 200) {
+  if (res.status === 200 || res.status === 201) {
     const json = JSON.parse(body);
     console.log(`  ✅ ${label} → ${res.status} ID=${json.id}`);
-    // 讀取完整記錄看有哪些欄位
     const readRes = await fetch(`${BASE}/${table}/${json.id}`, { headers: { 'X-API-Key': API_KEY } });
-    if (readRes.ok) {
-      const record = await readRes.json();
-      console.log(`     欄位: ${Object.keys(record).join(', ')}`);
-      console.log(`     值: ${JSON.stringify(record).substring(0, 500)}`);
-    }
+    if (readRes.ok) { const r = await readRes.json(); console.log(`     欄位: ${Object.keys(r).join(', ')}`); }
     try { await fetch(`${BASE}/${table}/${json.id}`, { method: 'DELETE', headers: H }); } catch {}
     return true;
   }
-  console.log(`  ❌ ${label} → ${res.status}: ${body.substring(0, 200)}`);
+  console.log(`  ❌ ${label} → ${res.status}: ${body.substring(0, 150)}`);
   return false;
 }
 
 async function main() {
-  // ===== announcements 深度探查 =====
-  console.log('\n📋 announcements 深度探查');
-  // 試各種可能的欄位名
-  const annFields = [
-    { title: `公告_${TS}`, content: '測試', announcement_type: 'general' },
-    { title: `公告_${TS}`, announcement_type: 'general', published: true },
-    { title: `公告_${TS}`, content: '測試', published: true },
-    { title: `公告_${TS}`, text: '測試' },
-    { subject: `公告_${TS}` },
-    { title: `公告_${TS}`, body_html: '<p>測試</p>' },
-    { title: `公告_${TS}`, description: '測試' },
-    { title: `公告_${TS}`, active: true },
-  ];
-  for (const f of annFields) await probe('announcements', f, Object.keys(f).join('+'));
+  // account_payments
+  console.log('\n📋 account_payments');
+  await probe('account_payments', { name: `PAY_${TS}` }, 'name');
+  await probe('account_payments', { amount: 100, date: '2026-03-29' }, 'amount+date');
+  await probe('account_payments', { amount: 100, date: '2026-03-29', payment_type: 'inbound' }, 'amount+date+type');
 
-  // ===== sale_orders 深度探查 =====
-  console.log('\n📋 sale_orders 深度探查');
-  // 建客戶
-  const cRes = await fetch(`${BASE}/customers`, { method: 'POST', headers: H,
-    body: JSON.stringify({ name: `探查客戶2_${TS}`, customer_type: 'company' }) });
-  const cust = cRes.ok ? await cRes.json() : null;
-  console.log(`  客戶 ID: ${cust?.id}`);
+  // hr_departments
+  console.log('\n📋 hr_departments');
+  await probe('hr_departments', { name: `部門_${TS}` }, 'name');
 
-  // 嘗試更多欄位組合（Odoo 的 sale.order 關鍵欄位）
-  const soFields = [
-    { partner_id: cust?.id, date_order: '2026-03-29' },
-    { partner_id: cust?.id, date_order: '2026-03-29', pricelist_id: null },
-    { partner_id: cust?.id, date_order: '2026-03-29', state: 'draft', currency_id: null },
-    { partner_id: cust?.id, company_id: null },
-    { customer_id: cust?.id, date_order: '2026-03-29' },
-  ];
-  for (const f of soFields) await probe('sale_orders', f, Object.keys(f).filter(k=>f[k]!==null).join('+'));
+  // hr_leaves
+  console.log('\n📋 hr_leaves');
+  await probe('hr_leaves', { name: `假單_${TS}` }, 'name');
+  await probe('hr_leaves', { holiday_status_id: null, date_from: '2026-03-29', date_to: '2026-03-30' }, 'dates');
 
-  // ===== purchase_orders 深度探查 =====
-  console.log('\n📋 purchase_orders 深度探查');
-  const sRes = await fetch(`${BASE}/suppliers`, { method: 'POST', headers: H,
-    body: JSON.stringify({ name: `探查供應商2_${TS}`, supplier_type: 'company' }) });
-  const supp = sRes.ok ? await sRes.json() : null;
-  console.log(`  供應商 ID: ${supp?.id}`);
+  // sale_order_lines — 需先建 sale_order
+  console.log('\n📋 sale_order_lines');
+  // 先建客戶
+  let custRes = await fetch(`${BASE}/customers`, { method: 'POST', headers: H, body: JSON.stringify({ name: `探查客戶_${TS}`, customer_type: 'company' }) });
+  let cust = custRes.ok ? await custRes.json() : null;
+  // 建 sale_order
+  let soRes = cust ? await fetch(`${BASE}/sale_orders`, { method: 'POST', headers: H, body: JSON.stringify({ partner_id: cust.id, date_order: '2026-03-29' }) }) : null;
+  let so = soRes?.ok ? await soRes.json() : null;
+  console.log(`  準備: SO=${so?.id}`);
+  if (so) {
+    await probe('sale_order_lines', { order_id: so.id, name: `明細_${TS}` }, 'order_id+name');
+    await probe('sale_order_lines', { order_id: so.id, name: `明細_${TS}`, product_id: null, product_uom_qty: 1 }, 'order_id+name+qty');
+  }
 
-  const poFields = [
-    { partner_id: supp?.id, date_order: '2026-03-29' },
-    { partner_id: supp?.id, date_planned: '2026-03-29' },
-    { supplier_id: supp?.id, date_order: '2026-03-29' },
-  ];
-  for (const f of poFields) await probe('purchase_orders', f, Object.keys(f).join('+'));
+  // announcements — 深度探查 title 組合
+  console.log('\n📋 announcements (AI GO 已修)');
+  await probe('announcements', { title: `公告_${TS}` }, 'title');
+  await probe('announcements', { title: `公告_${TS}`, content: '測試內容' }, 'title+content');
+  await probe('announcements', { title: `公告_${TS}`, active: true }, 'title+active');
+
+  // account_moves — 重測
+  console.log('\n📋 account_moves (AI GO 已修)');
+  // LIST
+  const amRes = await fetch(`${BASE}/account_moves?limit=1`, { headers: { 'X-API-Key': API_KEY } });
+  console.log(`  LIST → ${amRes.status}`);
+  // CREATE
+  await probe('account_moves', { move_type: 'entry', date: '2026-03-29' }, 'move_type+date');
 
   // 清理
-  if (cust?.id) await fetch(`${BASE}/customers/${cust.id}`, { method: 'DELETE', headers: H });
-  if (supp?.id) await fetch(`${BASE}/suppliers/${supp.id}`, { method: 'DELETE', headers: H });
+  if (so) try { await fetch(`${BASE}/sale_orders/${so.id}`, { method: 'DELETE', headers: H }); } catch {}
+  if (cust) try { await fetch(`${BASE}/customers/${cust.id}`, { method: 'DELETE', headers: H }); } catch {}
 }
-
 main().catch(console.error);
