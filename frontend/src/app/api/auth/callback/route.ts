@@ -10,6 +10,23 @@ import { getAigoClient } from '@/lib/aigo';
 import { handleApiError } from '@/lib/aigo/route-helpers';
 import type { TokenExchangeResponse } from '@/lib/aigo';
 
+/** 取得真實的對外 Base URL（處理 Docker/Reverse Proxy） */
+function getExternalBaseUrl(request: NextRequest): string {
+  // 優先使用環境變數（server-only，runtime 可用）
+  if (process.env.APP_BASE_URL) {
+    return process.env.APP_BASE_URL.replace(/\/$/, '');
+  }
+  // 其次使用 reverse proxy 轉發的 header
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+  // 最後 fallback 到 request.url（本地開發時有效）
+  const url = new URL(request.url);
+  return `${url.protocol}//${url.host}`;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const code = request.nextUrl.searchParams.get('code');
@@ -28,8 +45,9 @@ export async function GET(request: NextRequest) {
       { code }
     );
 
-    // 設定 httpOnly cookie 儲存 access_token
-    const response = NextResponse.redirect(new URL('/', request.url));
+    // 使用正確的外部 URL 進行重導
+    const baseUrl = getExternalBaseUrl(request);
+    const response = NextResponse.redirect(new URL('/', baseUrl));
 
     response.cookies.set('aigo_token', result.access_token, {
       httpOnly: true,
@@ -53,3 +71,4 @@ export async function GET(request: NextRequest) {
     return handleApiError(error);
   }
 }
+
