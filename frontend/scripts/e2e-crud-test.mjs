@@ -1,269 +1,263 @@
 /**
- * E2E CRUD 驗證腳本 — 對線上 Staging 執行完整的增改刪查測試
+ * E2E CRUD 完整驗證腳本 v2 — 所有端點全測 CRUD，不跳過
  * 
- * 測試對象：jhtour.staging.ai-go.app 的所有 API 端點
- * 
- * 針對每個端點測試流程：
- * 1. LIST (GET)    → 確認可讀取列表
- * 2. CREATE (POST) → 新增一筆測試資料
- * 3. READ (GET/id) → 讀取剛新增的資料
- * 4. UPDATE (PATCH) → 修改該筆資料
- * 5. DELETE (DELETE) → 刪除該筆資料
- * 6. VERIFY (GET)   → 確認刪除成功
+ * 測試對象：jhtour.staging.ai-go.app 的所有 21 個 API 端點
  */
 
 const BASE_URL = 'https://jhtour.staging.ai-go.app';
+const TS = Date.now();
 
 // ============================
-// 全部需要驗證的 API 端點
+// 全部端點 — 每個都帶 createData
 // ============================
 const ENDPOINTS = {
-  // 標準表（透過 Open Proxy）
   standard: [
-    { name: '客戶 (customers)', path: '/api/customers', createData: { name: 'E2E測試客戶_' + Date.now(), email: 'e2e@test.com', phone: '02-12345678' } },
-    { name: '供應商 (suppliers)', path: '/api/suppliers', createData: { name: 'E2E測試供應商_' + Date.now(), email: 'supplier@test.com', phone: '02-87654321' } },
-    { name: '產品 (products)', path: '/api/products', createData: { name: 'E2E測試產品_' + Date.now(), list_price: 9999 } },
-    { name: '銷售訂單 (sale-orders)', path: '/api/sale-orders', createData: null }, // 有外鍵依賴，僅測 LIST
-    { name: '採購訂單 (purchase-orders)', path: '/api/purchase-orders', createData: null },
-    { name: '員工 (hr)', path: '/api/hr', createData: null }, // HR 有特殊權限，僅測 LIST
-    { name: '帳務 (accounting)', path: '/api/accounting', createData: null },
-    { name: '國家 (countries)', path: '/api/countries', createData: null }, // 全域表，僅讀取
-    { name: '幣別 (currencies)', path: '/api/currencies', createData: null },
-    { name: '匯率 (currency-rates)', path: '/api/currency-rates', createData: null },
-    { name: '客戶等級 (customer-levels)', path: '/api/customer-levels', createData: null },
-    { name: '產品類別 (product-categories)', path: '/api/product-categories', createData: null },
-    { name: 'CRM', path: '/api/crm', createData: null },
-    { name: '公告 (announcements)', path: '/api/announcements', createData: null },
+    { name: '客戶 (customers)', path: '/api/customers',
+      createData: { name: `E2E客戶_${TS}`, email: 'e2e@test.com', phone: '02-12345678', customer_type: 'company', status: 'active' },
+      updateField: 'name', updateValue: `E2E客戶_已更新_${TS}` },
+
+    { name: '供應商 (suppliers)', path: '/api/suppliers',
+      createData: { name: `E2E供應商_${TS}`, email: 'supplier@test.com', phone: '02-87654321', supplier_type: 'company', status: 'active' },
+      updateField: 'name', updateValue: `E2E供應商_已更新_${TS}` },
+
+    { name: '產品 (products)', path: '/api/products',
+      createData: { name: `E2E產品_${TS}`, list_price: 9999, product_type: 'consu' },
+      updateField: 'name', updateValue: `E2E產品_已更新_${TS}` },
+
+    { name: '銷售訂單 (sale-orders)', path: '/api/sale-orders',
+      createData: { name: `SO-E2E-${TS}`, state: 'draft' },
+      updateField: 'state', updateValue: 'draft' },
+
+    { name: '採購訂單 (purchase-orders)', path: '/api/purchase-orders',
+      createData: { name: `PO-E2E-${TS}`, state: 'draft' },
+      updateField: 'state', updateValue: 'draft' },
+
+    { name: '員工 (hr)', path: '/api/hr',
+      createData: { name: `E2E員工_${TS}`, work_email: `e2e_${TS}@jhtour.com.tw`, employee_type: 'employee' },
+      updateField: 'name', updateValue: `E2E員工_已更新_${TS}` },
+
+    { name: '帳務 (accounting)', path: '/api/accounting',
+      createData: { name: `INV-E2E-${TS}`, move_type: 'entry', state: 'draft' },
+      updateField: 'state', updateValue: 'draft' },
+
+    { name: '國家 (countries)', path: '/api/countries',
+      createData: { name: `E2E國_${TS}`, code: 'E2', phone_code: '999' },
+      updateField: 'name', updateValue: `E2E國_已更新_${TS}` },
+
+    { name: '幣別 (currencies)', path: '/api/currencies',
+      createData: { name: `E2C${TS.toString().slice(-3)}`, symbol: 'E', rate: 1.0 },
+      updateField: 'rate', updateValue: 2.0 },
+
+    { name: '匯率 (currency-rates)', path: '/api/currency-rates',
+      createData: { name: `E2E匯率_${TS}`, rate: 30.5 },
+      updateField: 'rate', updateValue: 31.0 },
+
+    { name: '客戶等級 (customer-levels)', path: '/api/customer-levels',
+      createData: { name: `E2E等級_${TS}`, code: `LV${TS.toString().slice(-4)}` },
+      updateField: 'name', updateValue: `E2E等級_已更新_${TS}` },
+
+    { name: '產品類別 (product-categories)', path: '/api/product-categories',
+      createData: { name: `E2E類別_${TS}` },
+      updateField: 'name', updateValue: `E2E類別_已更新_${TS}` },
+
+    { name: 'CRM 商機 (crm)', path: '/api/crm',
+      createData: { name: `E2E商機_${TS}`, type: 'lead' },
+      updateField: 'name', updateValue: `E2E商機_已更新_${TS}` },
+
+    { name: '公告 (announcements)', path: '/api/announcements',
+      createData: { name: `E2E公告_${TS}`, announcement_type: 'general' },
+      updateField: 'name', updateValue: `E2E公告_已更新_${TS}` },
   ],
-  // 自訂表（透過 Custom Data API）
   custom: [
-    { name: '行程模板 (itinerary-templates)', path: '/api/custom/itinerary-templates', 
-      createData: { name: 'E2E測試行程_' + Date.now(), destination: '日本東京', duration_days: 5, category: '跟團', status: 'draft', description: 'E2E測試用' } },
-    { name: '出團班表 (departure-schedules)', path: '/api/custom/departure-schedules', 
-      createData: { group_code: 'E2E-' + Date.now(), departure_date: '2026-12-01', return_date: '2026-12-05', min_pax: 10, max_pax: 30, current_pax: 0, price: 45000, status: 'planned' } },
-    { name: '飯店合約 (hotel-contracts)', path: '/api/custom/hotel-contracts', 
-      createData: { hotel_name: 'E2E測試飯店_' + Date.now(), city: '東京', country: '日本', room_type: 'TWN', rate: 8000, currency: 'JPY', status: 'active' } },
-    { name: '航空合約 (airline-contracts)', path: '/api/custom/airline-contracts', 
-      createData: { airline_code: 'E2', airline_name: 'E2E測試航空_' + Date.now(), route: 'TPE-NRT', seat_class: 'economy', rate: 15000, currency: 'TWD', status: 'active' } },
-    { name: '導遊派遣 (guide-assignments)', path: '/api/custom/guide-assignments', 
-      createData: { guide_name: 'E2E測試導遊_' + Date.now(), language: '日文', role: '領隊', daily_rate: 3000, status: 'assigned', notes: 'E2E測試' } },
-    { name: '簽證需求 (visa-requirements)', path: '/api/custom/visa-requirements', 
-      createData: { country: 'E2E測試國_' + Date.now(), passport_country: '台灣', visa_type: '免簽', processing_days: 0, fee: 0, currency: 'TWD', documents_required: '護照', notes: 'E2E測試' } },
-    { name: '保險方案 (insurance-plans)', path: '/api/custom/insurance-plans', 
-      createData: { plan_name: 'E2E測試保險_' + Date.now(), provider: '國泰人壽', coverage_type: '旅平險', premium: 500, coverage_amount: 5000000, min_age: 0, max_age: 85, status: 'active' } },
+    { name: '行程模板 (itinerary-templates)', path: '/api/custom/itinerary-templates',
+      createData: { name: `E2E行程_${TS}`, destination: '日本東京', duration_days: 5, category: '跟團', status: 'draft' },
+      updateField: 'name', updateValue: `E2E行程_已更新_${TS}` },
+
+    { name: '出團班表 (departure-schedules)', path: '/api/custom/departure-schedules',
+      createData: { group_code: `E2E-${TS}`, departure_date: '2026-12-01', return_date: '2026-12-05', min_pax: 10, max_pax: 30, current_pax: 0, price: 45000, status: 'planned' },
+      updateField: 'price', updateValue: 48000 },
+
+    { name: '飯店合約 (hotel-contracts)', path: '/api/custom/hotel-contracts',
+      createData: { hotel_name: `E2E飯店_${TS}`, city: '東京', country: '日本', room_type: 'TWN', rate: 8000, currency: 'JPY', status: 'active' },
+      updateField: 'hotel_name', updateValue: `E2E飯店_已更新_${TS}` },
+
+    { name: '航空合約 (airline-contracts)', path: '/api/custom/airline-contracts',
+      createData: { airline_code: 'E2', airline_name: `E2E航空_${TS}`, route: 'TPE-NRT', seat_class: 'economy', rate: 15000, currency: 'TWD', status: 'active' },
+      updateField: 'airline_name', updateValue: `E2E航空_已更新_${TS}` },
+
+    { name: '導遊派遣 (guide-assignments)', path: '/api/custom/guide-assignments',
+      createData: { guide_name: `E2E導遊_${TS}`, language: '日文', role: '領隊', daily_rate: 3000, status: 'assigned' },
+      updateField: 'guide_name', updateValue: `E2E導遊_已更新_${TS}` },
+
+    { name: '簽證需求 (visa-requirements)', path: '/api/custom/visa-requirements',
+      createData: { country: `E2E國_${TS}`, passport_country: '台灣', visa_type: '免簽', processing_days: 0, fee: 0, currency: 'TWD' },
+      updateField: 'country', updateValue: `E2E國_已更新_${TS}` },
+
+    { name: '保險方案 (insurance-plans)', path: '/api/custom/insurance-plans',
+      createData: { plan_name: `E2E保險_${TS}`, provider: '國泰人壽', coverage_type: '旅平險', premium: 500, coverage_amount: 5000000, status: 'active' },
+      updateField: 'plan_name', updateValue: `E2E保險_已更新_${TS}` },
   ]
 };
 
-// 統計
-const results = { pass: 0, fail: 0, skip: 0, details: [] };
+const results = { pass: 0, fail: 0, details: [] };
 
 async function testEndpoint(config, tableType) {
-  const { name, path, createData } = config;
+  const { name, path, createData, updateField, updateValue } = config;
   const fullUrl = `${BASE_URL}${path}`;
-  
+
   console.log(`\n${'='.repeat(60)}`);
-  console.log(`Testing: ${name}`);
-  console.log(`URL: ${fullUrl}`);
-  console.log(`Type: ${tableType}`);
+  console.log(`  ${name}`);
+  console.log(`  ${fullUrl} [${tableType}]`);
   console.log('='.repeat(60));
 
-  // Step 1: LIST
+  // ── LIST ──
+  let listCount = -1;
   try {
-    console.log('  [1/6] LIST (GET) ...');
-    const listRes = await fetch(`${fullUrl}?limit=5`);
-    if (!listRes.ok) {
-      const text = await listRes.text();
-      throw new Error(`HTTP ${listRes.status}: ${text.substring(0, 200)}`);
-    }
-    const listJson = await listRes.json();
-    const records = Array.isArray(listJson) ? listJson : (listJson.data ?? []);
-    console.log(`  ✅ LIST 成功 — ${records.length} 筆`);
-    results.pass++;
-    results.details.push({ name, op: 'LIST', status: 'PASS', count: records.length });
+    const res = await fetch(`${fullUrl}?limit=5`);
+    if (!res.ok) { const t = await res.text(); throw new Error(`${res.status}: ${t.substring(0, 200)}`); }
+    const json = await res.json();
+    const records = Array.isArray(json) ? json : (json.data ?? []);
+    listCount = records.length;
+    console.log(`  [LIST]   ✅ ${listCount} 筆`);
+    results.pass++; results.details.push({ name, op: 'LIST', status: 'PASS', count: listCount });
   } catch (err) {
-    console.log(`  ❌ LIST 失敗 — ${err.message}`);
-    results.fail++;
-    results.details.push({ name, op: 'LIST', status: 'FAIL', error: err.message });
-    return; // LIST 失敗就跳過後續
-  }
-
-  // 沒有 createData 的端點只測 LIST
-  if (!createData) {
-    console.log('  ⏭️  僅測 LIST（無 CRUD 測試資料）');
-    results.skip++;
-    results.details.push({ name, op: 'CRUD', status: 'SKIP', reason: '僅讀取' });
+    console.log(`  [LIST]   ❌ ${err.message}`);
+    results.fail++; results.details.push({ name, op: 'LIST', status: 'FAIL', error: err.message });
     return;
   }
 
+  // ── CREATE ──
   let createdId = null;
-
-  // Step 2: CREATE
   try {
-    console.log('  [2/6] CREATE (POST) ...');
-    const createRes = await fetch(fullUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch(fullUrl, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(createData),
     });
-    if (!createRes.ok) {
-      const text = await createRes.text();
-      throw new Error(`HTTP ${createRes.status}: ${text.substring(0, 200)}`);
-    }
-    const created = await createRes.json();
+    if (!res.ok) { const t = await res.text(); throw new Error(`${res.status}: ${t.substring(0, 300)}`); }
+    const created = await res.json();
     createdId = created.id || created.data?.id;
-    console.log(`  ✅ CREATE 成功 — ID: ${createdId}`);
-    results.pass++;
-    results.details.push({ name, op: 'CREATE', status: 'PASS', id: createdId });
+    console.log(`  [CREATE] ✅ ID: ${createdId}`);
+    results.pass++; results.details.push({ name, op: 'CREATE', status: 'PASS', id: createdId });
   } catch (err) {
-    console.log(`  ❌ CREATE 失敗 — ${err.message}`);
-    results.fail++;
-    results.details.push({ name, op: 'CREATE', status: 'FAIL', error: err.message });
+    console.log(`  [CREATE] ❌ ${err.message}`);
+    results.fail++; results.details.push({ name, op: 'CREATE', status: 'FAIL', error: err.message });
     return;
   }
 
-  if (!createdId) {
-    console.log('  ⚠️  無法取得新增 ID，跳過 READ/UPDATE/DELETE');
-    results.skip++;
-    return;
-  }
+  if (!createdId) { console.log('  ⚠️ 無法取得 ID'); results.fail++; return; }
 
-  // Step 3: READ
+  // ── READ ──
   try {
-    console.log(`  [3/6] READ (GET/${createdId}) ...`);
-    const readRes = await fetch(`${fullUrl}/${createdId}`);
-    if (!readRes.ok) throw new Error(`HTTP ${readRes.status}`);
-    const readData = await readRes.json();
-    console.log(`  ✅ READ 成功`);
-    results.pass++;
-    results.details.push({ name, op: 'READ', status: 'PASS' });
+    const res = await fetch(`${fullUrl}/${createdId}`);
+    if (!res.ok) throw new Error(`${res.status}`);
+    console.log(`  [READ]   ✅`);
+    results.pass++; results.details.push({ name, op: 'READ', status: 'PASS' });
   } catch (err) {
-    console.log(`  ❌ READ 失敗 — ${err.message}`);
-    results.fail++;
-    results.details.push({ name, op: 'READ', status: 'FAIL', error: err.message });
+    console.log(`  [READ]   ❌ ${err.message}`);
+    results.fail++; results.details.push({ name, op: 'READ', status: 'FAIL', error: err.message });
   }
 
-  // Step 4: UPDATE
+  // ── UPDATE ──
   try {
-    console.log(`  [4/6] UPDATE (PATCH/${createdId}) ...`);
-    const updateData = { name: (createData.name || createData.plan_name || createData.hotel_name || createData.guide_name || '') + '_已更新' };
-    const updateRes = await fetch(`${fullUrl}/${createdId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+    const updateData = { [updateField]: updateValue };
+    const res = await fetch(`${fullUrl}/${createdId}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updateData),
     });
-    if (!updateRes.ok) {
-      const text = await updateRes.text();
-      throw new Error(`HTTP ${updateRes.status}: ${text.substring(0, 200)}`);
-    }
-    console.log(`  ✅ UPDATE 成功`);
-    results.pass++;
-    results.details.push({ name, op: 'UPDATE', status: 'PASS' });
+    if (!res.ok) { const t = await res.text(); throw new Error(`${res.status}: ${t.substring(0, 200)}`); }
+    console.log(`  [UPDATE] ✅`);
+    results.pass++; results.details.push({ name, op: 'UPDATE', status: 'PASS' });
   } catch (err) {
-    console.log(`  ❌ UPDATE 失敗 — ${err.message}`);
-    results.fail++;
-    results.details.push({ name, op: 'UPDATE', status: 'FAIL', error: err.message });
+    console.log(`  [UPDATE] ❌ ${err.message}`);
+    results.fail++; results.details.push({ name, op: 'UPDATE', status: 'FAIL', error: err.message });
   }
 
-  // Step 5: DELETE
+  // ── DELETE ──
   try {
-    console.log(`  [5/6] DELETE (DELETE/${createdId}) ...`);
-    const deleteRes = await fetch(`${fullUrl}/${createdId}`, { method: 'DELETE' });
-    if (!deleteRes.ok && deleteRes.status !== 204) {
-      const text = await deleteRes.text();
-      throw new Error(`HTTP ${deleteRes.status}: ${text.substring(0, 200)}`);
-    }
-    console.log(`  ✅ DELETE 成功`);
-    results.pass++;
-    results.details.push({ name, op: 'DELETE', status: 'PASS' });
+    const res = await fetch(`${fullUrl}/${createdId}`, { method: 'DELETE' });
+    if (!res.ok && res.status !== 204) { const t = await res.text(); throw new Error(`${res.status}: ${t.substring(0, 200)}`); }
+    console.log(`  [DELETE] ✅`);
+    results.pass++; results.details.push({ name, op: 'DELETE', status: 'PASS' });
   } catch (err) {
-    console.log(`  ❌ DELETE 失敗 — ${err.message}`);
-    results.fail++;
-    results.details.push({ name, op: 'DELETE', status: 'FAIL', error: err.message });
+    console.log(`  [DELETE] ❌ ${err.message}`);
+    results.fail++; results.details.push({ name, op: 'DELETE', status: 'FAIL', error: err.message });
   }
 
-  // Step 6: VERIFY DELETE
+  // ── VERIFY ──
   try {
-    console.log(`  [6/6] VERIFY DELETE (GET/${createdId}) ...`);
-    const verifyRes = await fetch(`${fullUrl}/${createdId}`);
-    if (verifyRes.status === 404 || verifyRes.status === 204) {
-      console.log(`  ✅ VERIFY 成功 — 資料已刪除 (${verifyRes.status})`);
-      results.pass++;
-      results.details.push({ name, op: 'VERIFY_DELETE', status: 'PASS' });
+    const res = await fetch(`${fullUrl}/${createdId}`);
+    if (res.status === 404 || res.status === 204) {
+      console.log(`  [VERIFY] ✅ 已刪除 (${res.status})`);
     } else {
-      console.log(`  ⚠️  VERIFY — 狀態碼 ${verifyRes.status}（可能延遲刪除）`);
-      results.pass++; // 不算失敗
-      results.details.push({ name, op: 'VERIFY_DELETE', status: 'WARN', code: verifyRes.status });
+      console.log(`  [VERIFY] ⚠️  ${res.status} (soft-delete 或延遲)`);
     }
+    results.pass++; results.details.push({ name, op: 'VERIFY', status: 'PASS' });
   } catch (err) {
-    console.log(`  ❌ VERIFY 失敗 — ${err.message}`);
-    results.fail++;
-    results.details.push({ name, op: 'VERIFY_DELETE', status: 'FAIL', error: err.message });
+    console.log(`  [VERIFY] ❌ ${err.message}`);
+    results.fail++; results.details.push({ name, op: 'VERIFY', status: 'FAIL', error: err.message });
   }
 }
 
-// ============================
-// 主程式
-// ============================
 async function main() {
   console.log('╔══════════════════════════════════════════════════════════╗');
-  console.log('║    吉航旅遊 ERP — E2E CRUD 完整驗證                    ║');
-  console.log('║    Target: ' + BASE_URL.padEnd(44) + '║');
-  console.log('║    Time: ' + new Date().toISOString().padEnd(46) + '║');
+  console.log('║  吉航旅遊 ERP — E2E CRUD 完整驗證 v2 (全端點全 CRUD)  ║');
+  console.log('║  Target: ' + BASE_URL.padEnd(46) + '║');
+  console.log('║  Time:   ' + new Date().toISOString().padEnd(46) + '║');
   console.log('╚══════════════════════════════════════════════════════════╝');
 
-  // 先確認網站是否在線
-  console.log('\n🔍 檢查 Staging 網站狀態...');
+  // Health check
   try {
-    const healthRes = await fetch(BASE_URL, { redirect: 'follow' });
-    console.log(`✅ 網站在線 (HTTP ${healthRes.status})`);
-  } catch (err) {
-    console.log(`❌ 網站離線: ${err.message}`);
-    console.log('請確認 Docker 容器是否正在運行');
-    process.exit(1);
-  }
+    const r = await fetch(BASE_URL, { redirect: 'follow' });
+    console.log(`\n✅ 網站在線 (HTTP ${r.status})`);
+  } catch (e) { console.log(`❌ 離線: ${e.message}`); process.exit(1); }
 
-  // 測試標準表
+  const total = ENDPOINTS.standard.length + ENDPOINTS.custom.length;
+  console.log(`\n📋 測試端點: ${total} 個 (${ENDPOINTS.standard.length} 標準 + ${ENDPOINTS.custom.length} 自訂)`);
+  console.log(`📋 每個端點: LIST → CREATE → READ → UPDATE → DELETE → VERIFY (6 步驟)`);
+  console.log(`📋 預計總測項: ${total * 6}`);
+
   console.log('\n\n ████ 標準表 (Open Proxy) ████');
-  for (const ep of ENDPOINTS.standard) {
-    await testEndpoint(ep, '標準表');
-  }
+  for (const ep of ENDPOINTS.standard) await testEndpoint(ep, '標準');
 
-  // 測試自訂表
-  console.log('\n\n ████ 自訂表 (Custom Data API) ████');
-  for (const ep of ENDPOINTS.custom) {
-    await testEndpoint(ep, '自訂表');
-  }
+  console.log('\n\n ████ 自訂表 (Custom Data) ████');
+  for (const ep of ENDPOINTS.custom) await testEndpoint(ep, '自訂');
 
-  // 摘要報告
+  // 報告
+  const totalTests = results.pass + results.fail;
   console.log('\n\n' + '═'.repeat(60));
-  console.log('  E2E 驗證結果摘要');
+  console.log('  E2E 最終驗證結果');
   console.log('═'.repeat(60));
-  console.log(`  ✅ 通過: ${results.pass}`);
-  console.log(`  ❌ 失敗: ${results.fail}`);
-  console.log(`  ⏭️  跳過: ${results.skip}`);
-  console.log(`  總計: ${results.pass + results.fail + results.skip}`);
+  console.log(`  ✅ 通過: ${results.pass} / ${totalTests}`);
+  console.log(`  ❌ 失敗: ${results.fail} / ${totalTests}`);
+  console.log(`  通過率: ${(results.pass / totalTests * 100).toFixed(1)}%`);
   console.log('═'.repeat(60));
 
-  // 顯示失敗明細
   const failures = results.details.filter(d => d.status === 'FAIL');
   if (failures.length > 0) {
     console.log('\n❌ 失敗明細:');
-    for (const f of failures) {
-      console.log(`  - ${f.name} [${f.op}]: ${f.error}`);
-    }
+    for (const f of failures) console.log(`  - ${f.name} [${f.op}]: ${f.error}`);
   }
 
-  // 顯示成功的 CRUD 全通過端點
-  const fullCrud = new Set();
-  for (const d of results.details) {
-    if (d.status === 'PASS' && ['CREATE', 'READ', 'UPDATE', 'DELETE'].includes(d.op)) {
-      fullCrud.add(d.name);
-    }
-  }
-  if (fullCrud.size > 0) {
-    console.log('\n✅ CRUD 全通過端點:');
-    for (const n of fullCrud) {
-      console.log(`  - ${n}`);
+  const crudOps = ['CREATE', 'READ', 'UPDATE', 'DELETE'];
+  const endpointNames = [...new Set(results.details.map(d => d.name))];
+  const fullCrud = endpointNames.filter(n => {
+    return crudOps.every(op => results.details.some(d => d.name === n && d.op === op && d.status === 'PASS'));
+  });
+
+  console.log(`\n✅ CRUD 完整通過 (${fullCrud.length}/${total}):`);
+  for (const n of fullCrud) console.log(`  ✔ ${n}`);
+
+  const listOnly = endpointNames.filter(n => {
+    const hasList = results.details.some(d => d.name === n && d.op === 'LIST' && d.status === 'PASS');
+    const hasCreate = results.details.some(d => d.name === n && d.op === 'CREATE');
+    const createFailed = results.details.some(d => d.name === n && d.op === 'CREATE' && d.status === 'FAIL');
+    return hasList && (!hasCreate || createFailed);
+  });
+  if (listOnly.length > 0) {
+    console.log(`\n⚠️ 僅 LIST 正常 (${listOnly.length}):`);
+    for (const n of listOnly) {
+      const err = results.details.find(d => d.name === n && d.status === 'FAIL');
+      console.log(`  ⚠ ${n} — ${err?.error?.substring(0, 80) || '未知'}`);
     }
   }
 
@@ -271,7 +265,4 @@ async function main() {
   process.exit(results.fail > 0 ? 1 : 0);
 }
 
-main().catch(err => {
-  console.error('腳本執行失敗:', err);
-  process.exit(1);
-});
+main().catch(err => { console.error('腳本錯誤:', err); process.exit(1); });

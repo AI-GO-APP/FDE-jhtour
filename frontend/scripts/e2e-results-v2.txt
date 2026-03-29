@@ -1,0 +1,303 @@
+﻿╔══════════════════════════════════════════════════════════╗
+║    吉航旅遊 ERP — E2E CRUD 完整驗證                    ║
+║    Target: https://jhtour.staging.ai-go.app            ║
+║    Time: 2026-03-29T06:33:46.546Z                      ║
+╚══════════════════════════════════════════════════════════╝
+
+🔍 檢查 Staging 網站狀態...
+✅ 網站在線 (HTTP 200)
+
+
+ ████ 標準表 (Open Proxy) ████
+
+============================================================
+Testing: 客戶 (customers)
+URL: https://jhtour.staging.ai-go.app/api/customers
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 0 筆
+  [2/6] CREATE (POST) ...
+  ❌ CREATE 失敗 — HTTP 500: {"error":"AI GO API 錯誤","status":500,"detail":{"detail":"資料新增失敗"}}
+
+============================================================
+Testing: 供應商 (suppliers)
+URL: https://jhtour.staging.ai-go.app/api/suppliers
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 0 筆
+  [2/6] CREATE (POST) ...
+  ❌ CREATE 失敗 — HTTP 500: {"error":"AI GO API 錯誤","status":500,"detail":{"detail":"資料新增失敗"}}
+
+============================================================
+Testing: 產品 (products)
+URL: https://jhtour.staging.ai-go.app/api/products
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 0 筆
+  [2/6] CREATE (POST) ...
+  ✅ CREATE 成功 — ID: 8e54d7e8-16bd-4242-b87a-219f77783181
+  [3/6] READ (GET/8e54d7e8-16bd-4242-b87a-219f77783181) ...
+  ✅ READ 成功
+  [4/6] UPDATE (PATCH/8e54d7e8-16bd-4242-b87a-219f77783181) ...
+  ✅ UPDATE 成功
+  [5/6] DELETE (DELETE/8e54d7e8-16bd-4242-b87a-219f77783181) ...
+  ✅ DELETE 成功
+  [6/6] VERIFY DELETE (GET/8e54d7e8-16bd-4242-b87a-219f77783181) ...
+  ✅ VERIFY 成功 — 資料已刪除 (404)
+
+============================================================
+Testing: 銷售訂單 (sale-orders)
+URL: https://jhtour.staging.ai-go.app/api/sale-orders
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 0 筆
+  ⏭️  僅測 LIST（無 CRUD 測試資料）
+
+============================================================
+Testing: 採購訂單 (purchase-orders)
+URL: https://jhtour.staging.ai-go.app/api/purchase-orders
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 0 筆
+  ⏭️  僅測 LIST（無 CRUD 測試資料）
+
+============================================================
+Testing: 員工 (hr)
+URL: https://jhtour.staging.ai-go.app/api/hr
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ❌ LIST 失敗 — HTTP 404: <!DOCTYPE html><html lang="zh-TW"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/_next/static/chunks/0jqwj0263zkdn.css"
+
+============================================================
+Testing: 帳務 (accounting)
+URL: https://jhtour.staging.ai-go.app/api/accounting
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ❌ LIST 失敗 — HTTP 404: <!DOCTYPE html><html lang="zh-TW"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/_next/static/chunks/0jqwj0263zkdn.css"
+
+============================================================
+Testing: 國家 (countries)
+URL: https://jhtour.staging.ai-go.app/api/countries
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 5 筆
+  ⏭️  僅測 LIST（無 CRUD 測試資料）
+
+============================================================
+Testing: 幣別 (currencies)
+URL: https://jhtour.staging.ai-go.app/api/currencies
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 5 筆
+  ⏭️  僅測 LIST（無 CRUD 測試資料）
+
+============================================================
+Testing: 匯率 (currency-rates)
+URL: https://jhtour.staging.ai-go.app/api/currency-rates
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 2 筆
+  ⏭️  僅測 LIST（無 CRUD 測試資料）
+
+============================================================
+Testing: 客戶等級 (customer-levels)
+URL: https://jhtour.staging.ai-go.app/api/customer-levels
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 0 筆
+  ⏭️  僅測 LIST（無 CRUD 測試資料）
+
+============================================================
+Testing: 產品類別 (product-categories)
+URL: https://jhtour.staging.ai-go.app/api/product-categories
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 0 筆
+  ⏭️  僅測 LIST（無 CRUD 測試資料）
+
+============================================================
+Testing: CRM
+URL: https://jhtour.staging.ai-go.app/api/crm
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ❌ LIST 失敗 — HTTP 404: <!DOCTYPE html><html lang="zh-TW"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/_next/static/chunks/0jqwj0263zkdn.css"
+
+============================================================
+Testing: 公告 (announcements)
+URL: https://jhtour.staging.ai-go.app/api/announcements
+Type: 標準表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 0 筆
+  ⏭️  僅測 LIST（無 CRUD 測試資料）
+
+
+ ████ 自訂表 (Custom Data API) ████
+
+============================================================
+Testing: 行程模板 (itinerary-templates)
+URL: https://jhtour.staging.ai-go.app/api/custom/itinerary-templates
+Type: 自訂表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 4 筆
+  [2/6] CREATE (POST) ...
+  ✅ CREATE 成功 — ID: 19be81d2-64a1-4b7d-ab39-2acd02df4c45
+  [3/6] READ (GET/19be81d2-64a1-4b7d-ab39-2acd02df4c45) ...
+  ✅ READ 成功
+  [4/6] UPDATE (PATCH/19be81d2-64a1-4b7d-ab39-2acd02df4c45) ...
+  ✅ UPDATE 成功
+  [5/6] DELETE (DELETE/19be81d2-64a1-4b7d-ab39-2acd02df4c45) ...
+  ✅ DELETE 成功
+  [6/6] VERIFY DELETE (GET/19be81d2-64a1-4b7d-ab39-2acd02df4c45) ...
+  ⚠️  VERIFY — 狀態碼 200（可能延遲刪除）
+
+============================================================
+Testing: 出團班表 (departure-schedules)
+URL: https://jhtour.staging.ai-go.app/api/custom/departure-schedules
+Type: 自訂表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 3 筆
+  [2/6] CREATE (POST) ...
+  ✅ CREATE 成功 — ID: a8d2810f-26c3-47b3-ad58-120ce4aa1c3b
+  [3/6] READ (GET/a8d2810f-26c3-47b3-ad58-120ce4aa1c3b) ...
+  ✅ READ 成功
+  [4/6] UPDATE (PATCH/a8d2810f-26c3-47b3-ad58-120ce4aa1c3b) ...
+  ✅ UPDATE 成功
+  [5/6] DELETE (DELETE/a8d2810f-26c3-47b3-ad58-120ce4aa1c3b) ...
+  ✅ DELETE 成功
+  [6/6] VERIFY DELETE (GET/a8d2810f-26c3-47b3-ad58-120ce4aa1c3b) ...
+  ⚠️  VERIFY — 狀態碼 200（可能延遲刪除）
+
+============================================================
+Testing: 飯店合約 (hotel-contracts)
+URL: https://jhtour.staging.ai-go.app/api/custom/hotel-contracts
+Type: 自訂表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 3 筆
+  [2/6] CREATE (POST) ...
+  ✅ CREATE 成功 — ID: bb5e1748-da15-42cd-9e1e-f89ab713a951
+  [3/6] READ (GET/bb5e1748-da15-42cd-9e1e-f89ab713a951) ...
+  ✅ READ 成功
+  [4/6] UPDATE (PATCH/bb5e1748-da15-42cd-9e1e-f89ab713a951) ...
+  ✅ UPDATE 成功
+  [5/6] DELETE (DELETE/bb5e1748-da15-42cd-9e1e-f89ab713a951) ...
+  ✅ DELETE 成功
+  [6/6] VERIFY DELETE (GET/bb5e1748-da15-42cd-9e1e-f89ab713a951) ...
+  ⚠️  VERIFY — 狀態碼 200（可能延遲刪除）
+
+============================================================
+Testing: 航空合約 (airline-contracts)
+URL: https://jhtour.staging.ai-go.app/api/custom/airline-contracts
+Type: 自訂表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 3 筆
+  [2/6] CREATE (POST) ...
+  ✅ CREATE 成功 — ID: 048beff0-8a5d-4dce-a430-ea0812de5e7b
+  [3/6] READ (GET/048beff0-8a5d-4dce-a430-ea0812de5e7b) ...
+  ✅ READ 成功
+  [4/6] UPDATE (PATCH/048beff0-8a5d-4dce-a430-ea0812de5e7b) ...
+  ✅ UPDATE 成功
+  [5/6] DELETE (DELETE/048beff0-8a5d-4dce-a430-ea0812de5e7b) ...
+  ✅ DELETE 成功
+  [6/6] VERIFY DELETE (GET/048beff0-8a5d-4dce-a430-ea0812de5e7b) ...
+  ⚠️  VERIFY — 狀態碼 200（可能延遲刪除）
+
+============================================================
+Testing: 導遊派遣 (guide-assignments)
+URL: https://jhtour.staging.ai-go.app/api/custom/guide-assignments
+Type: 自訂表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 3 筆
+  [2/6] CREATE (POST) ...
+  ✅ CREATE 成功 — ID: c81f7ccf-c55a-41ae-9f4e-8a4eb1f220de
+  [3/6] READ (GET/c81f7ccf-c55a-41ae-9f4e-8a4eb1f220de) ...
+  ✅ READ 成功
+  [4/6] UPDATE (PATCH/c81f7ccf-c55a-41ae-9f4e-8a4eb1f220de) ...
+  ✅ UPDATE 成功
+  [5/6] DELETE (DELETE/c81f7ccf-c55a-41ae-9f4e-8a4eb1f220de) ...
+  ✅ DELETE 成功
+  [6/6] VERIFY DELETE (GET/c81f7ccf-c55a-41ae-9f4e-8a4eb1f220de) ...
+  ⚠️  VERIFY — 狀態碼 200（可能延遲刪除）
+
+============================================================
+Testing: 簽證需求 (visa-requirements)
+URL: https://jhtour.staging.ai-go.app/api/custom/visa-requirements
+Type: 自訂表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 3 筆
+  [2/6] CREATE (POST) ...
+  ✅ CREATE 成功 — ID: 7c15b739-eb7e-47a5-bf5c-9fe48b3e22ff
+  [3/6] READ (GET/7c15b739-eb7e-47a5-bf5c-9fe48b3e22ff) ...
+  ✅ READ 成功
+  [4/6] UPDATE (PATCH/7c15b739-eb7e-47a5-bf5c-9fe48b3e22ff) ...
+  ✅ UPDATE 成功
+  [5/6] DELETE (DELETE/7c15b739-eb7e-47a5-bf5c-9fe48b3e22ff) ...
+  ✅ DELETE 成功
+  [6/6] VERIFY DELETE (GET/7c15b739-eb7e-47a5-bf5c-9fe48b3e22ff) ...
+  ⚠️  VERIFY — 狀態碼 200（可能延遲刪除）
+
+============================================================
+Testing: 保險方案 (insurance-plans)
+URL: https://jhtour.staging.ai-go.app/api/custom/insurance-plans
+Type: 自訂表
+============================================================
+  [1/6] LIST (GET) ...
+  ✅ LIST 成功 — 3 筆
+  [2/6] CREATE (POST) ...
+  ✅ CREATE 成功 — ID: e7e9d7ea-c240-47f0-9a8f-fdbe7e73fc40
+  [3/6] READ (GET/e7e9d7ea-c240-47f0-9a8f-fdbe7e73fc40) ...
+  ✅ READ 成功
+  [4/6] UPDATE (PATCH/e7e9d7ea-c240-47f0-9a8f-fdbe7e73fc40) ...
+  ✅ UPDATE 成功
+  [5/6] DELETE (DELETE/e7e9d7ea-c240-47f0-9a8f-fdbe7e73fc40) ...
+  ✅ DELETE 成功
+  [6/6] VERIFY DELETE (GET/e7e9d7ea-c240-47f0-9a8f-fdbe7e73fc40) ...
+  ⚠️  VERIFY — 狀態碼 200（可能延遲刪除）
+
+
+════════════════════════════════════════════════════════════
+  E2E 驗證結果摘要
+════════════════════════════════════════════════════════════
+  ✅ 通過: 58
+  ❌ 失敗: 5
+  ⏭️  跳過: 8
+  總計: 71
+════════════════════════════════════════════════════════════
+
+❌ 失敗明細:
+  - 客戶 (customers) [CREATE]: HTTP 500: {"error":"AI GO API 錯誤","status":500,"detail":{"detail":"資料新增失敗"}}
+  - 供應商 (suppliers) [CREATE]: HTTP 500: {"error":"AI GO API 錯誤","status":500,"detail":{"detail":"資料新增失敗"}}
+  - 員工 (hr) [LIST]: HTTP 404: <!DOCTYPE html><html lang="zh-TW"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/_next/static/chunks/0jqwj0263zkdn.css"
+  - 帳務 (accounting) [LIST]: HTTP 404: <!DOCTYPE html><html lang="zh-TW"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/_next/static/chunks/0jqwj0263zkdn.css"
+  - CRM [LIST]: HTTP 404: <!DOCTYPE html><html lang="zh-TW"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/_next/static/chunks/0jqwj0263zkdn.css"
+
+✅ CRUD 全通過端點:
+  - 產品 (products)
+  - 行程模板 (itinerary-templates)
+  - 出團班表 (departure-schedules)
+  - 飯店合約 (hotel-contracts)
+  - 航空合約 (airline-contracts)
+  - 導遊派遣 (guide-assignments)
+  - 簽證需求 (visa-requirements)
+  - 保險方案 (insurance-plans)
+
+🏁 E2E 驗證完成

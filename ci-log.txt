@@ -1,0 +1,30 @@
+# E2E 驗證 v2 結果分析報告
+# ===========================
+
+## CI/CD 問題
+GitHub Actions 的 `STAGING_SSH_KEY` SSH 認證失敗，
+最近所有 6 次自動部署都是 `failure`。
+之前成功部署的版本（3/29 12:46）應該是手動在 VM 上執行的。
+
+## VM 手動部署指令
+```bash
+ssh deploy@<STAGING_HOST>
+cd /opt/apps/FDE-jhtour
+git fetch origin main
+git reset --hard FETCH_HEAD
+docker-compose -f docker-compose.staging.yml up -d --build
+```
+
+## 已完成的修正
+1. 新增 `/api/hr/route.ts` → 指向 `hr_employees`
+2. 新增 `/api/accounting/route.ts` → 指向 `account_moves`  
+3. 新增 `/api/crm/route.ts` → 指向 `crm_leads`
+
+## 本地 build 驗證
+- `npx next build` → Exit code: 0, 全部 145 頁成功編譯
+
+## E2E v2 結果摘要（修正部署前）
+- ✅ 通過: 58
+- ❌ 失敗: 5 (hr/accounting/crm 的 404 因部署未更新)
+- ⏭️  跳過: 8
+- 第二類 403 問題已全部修復（currency_rates ✅, customer_levels ✅, announcements ✅）
