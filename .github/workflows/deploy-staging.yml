@@ -1,26 +1,16 @@
-name: Deploy FDE-jhtour to Staging
+name: 部署到 Staging
 
 on:
-  workflow_dispatch:    # 允許手動從網頁觸發
+  workflow_dispatch:
   push:
-    branches: [ main ]  # 每次 main 更新自動觸發部署
-
-concurrency:
-  group: staging-deploy-fde-jhtour
-  cancel-in-progress: false
+    branches: [ main ]
+    paths-ignore:
+      - '*.md'
+      - 'docs/**'
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - name: SSH into Staging VM and Docker Compose Up
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.STAGING_HOST }}
-        username: deploy
-        key: ${{ secrets.STAGING_SSH_KEY }}
-        script: |
-          cd /opt/apps/FDE-jhtour
-          git fetch origin main
-          git reset --hard FETCH_HEAD
-          docker-compose -f docker-compose.staging.yml up -d --build
+    uses: AI-GO-APP/.github/.github/workflows/staging-deploy.yml@main
+    with:
+      project-name: ${{ github.event.repository.name }}
+    secrets: inherit

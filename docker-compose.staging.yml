@@ -1,15 +1,10 @@
 version: '3.8'
 
 services:
-  jhtour-frontend:
+  web:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: jhtour-staging
-    restart: unless-stopped
     ports:
-      # Nginx 會被配置 proxy_pass http://127.0.0.1:3006
-      - "127.0.0.1:3006:3000"
-    env_file:
-      # 讀取 VM 上的 /opt/apps/FDE-jhtour/.env 作為容器環境變數
-      - .env
+      - "${PORT:-3001}:3000"
+    restart: always
