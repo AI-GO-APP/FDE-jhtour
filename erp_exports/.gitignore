@@ -1,0 +1,12 @@
+# ERP 匯出資料檔（不進版控）
+*.xlsx
+*.xls
+*.zip
+*.pdf
+*.csv
+
+# 解壓暫存
+step5_tmp/
+
+# Python 快取
+__pycache__/
