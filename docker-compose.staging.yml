@@ -4,5 +4,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "${PORT:-3001}:3000"
+      - target: 3000
+        published: ${PORT:-3001}
+        protocol: tcp
+        mode: host
     restart: always
