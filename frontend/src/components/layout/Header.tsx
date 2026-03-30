@@ -140,19 +140,21 @@ export default function Header({ collapsed, onToggle }: HeaderProps) {
         </Badge>
 
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-          <Space className={styles.userInfo}>
+          <div className={styles.userInfo}>
             <Avatar
               icon={<UserOutlined />}
               size="small"
-              style={{ backgroundColor: roleInfo?.color }}
+              style={{ backgroundColor: roleInfo?.color, flexShrink: 0 }}
             />
-            <div>
-              <div className={styles.userName}>{user?.empName || '訪客'}</div>
-              <Tag color={roleInfo?.color} style={{ fontSize: 11, lineHeight: '16px', marginRight: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center', lineHeight: 1.2, gap: 2 }}>
+              <div className={styles.userName} style={{ fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user?.empName || '訪客'}
+              </div>
+              <Tag color={roleInfo?.color} style={{ fontSize: 11, lineHeight: '16px', marginRight: 0, padding: '0 4px', border: 0 }}>
                 {roleInfo?.label || '未登入'}
               </Tag>
             </div>
-          </Space>
+          </div>
         </Dropdown>
       </div>
     </AntHeader>
