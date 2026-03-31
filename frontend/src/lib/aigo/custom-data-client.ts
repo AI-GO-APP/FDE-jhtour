@@ -7,6 +7,19 @@
 import { AigoClient } from './client';
 import type { ProxyQueryOptions, CountResponse } from './types';
 
+/** Custom Table 新增回應 */
+export interface CustomDataCreateResponse {
+  id: string;
+  created_at: string;
+  data: Record<string, unknown>;
+}
+
+/** Custom Table 更新回應 */
+export interface CustomDataUpdateResponse {
+  id: string;
+  updated: boolean;
+}
+
 export class AigoCustomDataClient {
   constructor(private client: AigoClient) {}
 
@@ -90,8 +103,8 @@ export class AigoCustomDataClient {
    * 新增記錄
    * 根據文件需包裝在 {"data": {...}} 內
    */
-  async create(tableName: string, data: Record<string, unknown>): Promise<any> {
-    return this.client.post<any>(
+  async create(tableName: string, data: Record<string, unknown>): Promise<CustomDataCreateResponse> {
+    return this.client.post<CustomDataCreateResponse>(
       `/open/data/objects/${tableName}/records`,
       { data }
     );
@@ -101,8 +114,8 @@ export class AigoCustomDataClient {
    * 更新記錄
    * 根據文件需包裝在 {"data": {...}} 內，並給予 {record_id}
    */
-  async update(tableName: string, id: string, data: Record<string, unknown>): Promise<any> {
-    return this.client.patch<any>(
+  async update(tableName: string, id: string, data: Record<string, unknown>): Promise<CustomDataUpdateResponse> {
+    return this.client.patch<CustomDataUpdateResponse>(
       `/open/data/records/${id}`,
       { data }
     );

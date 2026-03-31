@@ -8,6 +8,15 @@
  * API Key 永遠不會暴露給瀏覽器端。
  */
 
+import type {
+  Customer,
+  Supplier,
+  SaleOrder,
+  ProductTemplate,
+  ProxyCreateResponse,
+  ProxyUpdateResponse,
+} from './aigo/types';
+
 /** API 呼叫錯誤 */
 export class ApiError extends Error {
   constructor(
@@ -99,18 +108,6 @@ export const api = {
   },
 
   /**
-   * PUT 請求（完整更新，向下相容舊程式碼）
-   */
-  put: async <T>(endpoint: string, body: unknown): Promise<T> => {
-    const res = await fetch(endpoint, {
-      method: 'PATCH', // AI GO 僅支援 PATCH，PUT 自動轉為 PATCH
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    return handleResponse<T>(res);
-  },
-
-  /**
    * DELETE 請求
    */
   delete: async <T>(endpoint: string): Promise<T> => {
@@ -128,44 +125,44 @@ const BASE = '/api';
 
 /** 客戶 CRUD */
 export const customerApi = {
-  list: (params?: Record<string, unknown>) => api.get<ListResponse<unknown>>(`${BASE}/customers`, params),
-  getById: (id: string) => api.get<unknown>(`${BASE}/customers/${id}`),
-  create: (data: unknown) => api.post<unknown>(`${BASE}/customers`, data),
-  update: (id: string, data: unknown) => api.patch<unknown>(`${BASE}/customers/${id}`, data),
-  remove: (id: string) => api.delete<unknown>(`${BASE}/customers/${id}`),
+  list: (params?: Record<string, unknown>) => api.get<ListResponse<Customer>>(`${BASE}/customers`, params),
+  getById: (id: string) => api.get<Customer>(`${BASE}/customers/${id}`),
+  create: (data: Partial<Customer>) => api.post<ProxyCreateResponse>(`${BASE}/customers`, data),
+  update: (id: string, data: Partial<Customer>) => api.patch<ProxyUpdateResponse>(`${BASE}/customers/${id}`, data),
+  remove: (id: string) => api.delete<void>(`${BASE}/customers/${id}`),
 };
 
 /** 供應商 CRUD */
 export const supplierApi = {
-  list: (params?: Record<string, unknown>) => api.get<ListResponse<unknown>>(`${BASE}/suppliers`, params),
-  getById: (id: string) => api.get<unknown>(`${BASE}/suppliers/${id}`),
-  create: (data: unknown) => api.post<unknown>(`${BASE}/suppliers`, data),
-  update: (id: string, data: unknown) => api.patch<unknown>(`${BASE}/suppliers/${id}`, data),
-  remove: (id: string) => api.delete<unknown>(`${BASE}/suppliers/${id}`),
+  list: (params?: Record<string, unknown>) => api.get<ListResponse<Supplier>>(`${BASE}/suppliers`, params),
+  getById: (id: string) => api.get<Supplier>(`${BASE}/suppliers/${id}`),
+  create: (data: Partial<Supplier>) => api.post<ProxyCreateResponse>(`${BASE}/suppliers`, data),
+  update: (id: string, data: Partial<Supplier>) => api.patch<ProxyUpdateResponse>(`${BASE}/suppliers/${id}`, data),
+  remove: (id: string) => api.delete<void>(`${BASE}/suppliers/${id}`),
 };
 
 /** 銷售訂單 CRUD */
 export const saleOrderApi = {
-  list: (params?: Record<string, unknown>) => api.get<ListResponse<unknown>>(`${BASE}/sale-orders`, params),
-  getById: (id: string) => api.get<unknown>(`${BASE}/sale-orders/${id}`),
-  create: (data: unknown) => api.post<unknown>(`${BASE}/sale-orders`, data),
-  update: (id: string, data: unknown) => api.patch<unknown>(`${BASE}/sale-orders/${id}`, data),
-  remove: (id: string) => api.delete<unknown>(`${BASE}/sale-orders/${id}`),
+  list: (params?: Record<string, unknown>) => api.get<ListResponse<SaleOrder>>(`${BASE}/sale-orders`, params),
+  getById: (id: string) => api.get<SaleOrder>(`${BASE}/sale-orders/${id}`),
+  create: (data: Partial<SaleOrder>) => api.post<ProxyCreateResponse>(`${BASE}/sale-orders`, data),
+  update: (id: string, data: Partial<SaleOrder>) => api.patch<ProxyUpdateResponse>(`${BASE}/sale-orders/${id}`, data),
+  remove: (id: string) => api.delete<void>(`${BASE}/sale-orders/${id}`),
 };
 
 /** 產品 CRUD */
 export const productApi = {
-  list: (params?: Record<string, unknown>) => api.get<ListResponse<unknown>>(`${BASE}/products`, params),
-  getById: (id: string) => api.get<unknown>(`${BASE}/products/${id}`),
-  create: (data: unknown) => api.post<unknown>(`${BASE}/products`, data),
-  update: (id: string, data: unknown) => api.patch<unknown>(`${BASE}/products/${id}`, data),
-  remove: (id: string) => api.delete<unknown>(`${BASE}/products/${id}`),
+  list: (params?: Record<string, unknown>) => api.get<ListResponse<ProductTemplate>>(`${BASE}/products`, params),
+  getById: (id: string) => api.get<ProductTemplate>(`${BASE}/products/${id}`),
+  create: (data: Partial<ProductTemplate>) => api.post<ProxyCreateResponse>(`${BASE}/products`, data),
+  update: (id: string, data: Partial<ProductTemplate>) => api.patch<ProxyUpdateResponse>(`${BASE}/products/${id}`, data),
+  remove: (id: string) => api.delete<void>(`${BASE}/products/${id}`),
 };
 
 /** 認證 */
 export const authApi = {
-  login: () => api.post<{ redirect_url: string; code: string }>(`${BASE}/auth/login`, {}),
-  me: () => api.get<{ authenticated: boolean; user: unknown }>(`${BASE}/auth/me`),
-  logout: () => api.delete<unknown>(`${BASE}/auth/me`),
-  refresh: () => api.post<unknown>(`${BASE}/auth/refresh`, {}),
+  login: () => api.post<{ redirect_url: string; message: string }>(`${BASE}/auth/login`, {}),
+  me: () => api.get<{ authenticated: boolean; user: { id: string; email: string; name: string } | null }>(`${BASE}/auth/me`),
+  logout: () => api.delete<{ success: boolean }>(`${BASE}/auth/me`),
+  refresh: () => api.post<{ success: boolean; expires_in: number }>(`${BASE}/auth/refresh`, {}),
 };

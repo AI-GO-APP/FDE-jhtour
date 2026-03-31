@@ -2,13 +2,13 @@
 
 /**
  * 登入頁面
- * 支援兩種登入方式：
- * 1. AI GO Platform Auth（OTC 流程）— 正式登入
- * 2. Demo 角色選擇 — 開發測試用
+ *
+ * 正式登入：AI GO Platform Auth（OTC 流程）
+ * Demo 登入：僅在 development 環境下顯示，用於本地開發測試
  */
-import React, { useState } from 'react';
-import { Card, Button, Select, Typography, Space, Divider, message, Row, Col, Alert } from 'antd';
-import { LoginOutlined, RocketOutlined, CloudOutlined, UserSwitchOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Card, Button, Typography, Space, Divider, message, Row, Col, Alert } from 'antd';
+import { RocketOutlined, CloudOutlined, UserSwitchOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { ROLE_INFO } from '@/lib/rbac';
@@ -16,27 +16,26 @@ import type { Role } from '@/lib/rbac';
 
 const { Title, Text, Paragraph } = Typography;
 
-const roleOptions = (Object.keys(ROLE_INFO) as Role[]).map((r) => ({
-  label: `${ROLE_INFO[r].label} — ${ROLE_INFO[r].description}`,
-  value: r,
-}));
+/** 是否為開發環境 */
+const IS_DEV = process.env.NODE_ENV === 'development';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { isLoggedIn, isLoading, loginWithAigo, loginDemo } = useAuth();
   const [loading, setLoading] = useState(false);
+
+  // 已登入時自動重導至首頁
+  useEffect(() => {
+    if (!isLoading && isLoggedIn) {
+      router.replace('/');
+    }
+  }, [isLoggedIn, isLoading, router]);
 
   /** AI GO OTC 登入 — 跳轉到 AI GO 主站 */
   const handleAigoLogin = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/login', { method: 'POST' });
-      const data = await res.json();
-      if (data.redirect_url) {
-        window.location.href = data.redirect_url;
-      } else {
-        message.error('無法取得登入 URL');
-      }
+      await loginWithAigo();
     } catch {
       message.error('登入服務連線失敗');
     } finally {
@@ -46,10 +45,15 @@ export default function LoginPage() {
 
   /** Demo 角色快速登入 */
   const handleDemoLogin = (role: Role) => {
-    login(role);
+    loginDemo(role);
     message.success(`歡迎登入！角色：${ROLE_INFO[role].label}`);
     router.push(ROLE_INFO[role].defaultPath);
   };
+
+  // 載入中或已登入，不要顯示登入頁
+  if (isLoading || isLoggedIn) {
+    return null;
+  }
 
   return (
     <div style={{
@@ -95,32 +99,44 @@ export default function LoginPage() {
           style={{ marginTop: 16, borderRadius: 8 }}
         />
 
-        <Divider plain style={{ margin: '32px 0 16px' }}>
-          <Space>
-            <UserSwitchOutlined />
-            <span>Demo 快速登入</span>
-          </Space>
-        </Divider>
+        {/* === Demo 快速登入 — 僅開發環境 === */}
+        {IS_DEV && (
+          <>
+            <Divider plain style={{ margin: '32px 0 16px' }}>
+              <Space>
+                <UserSwitchOutlined />
+                <span>Demo 快速登入（開發模式）</span>
+              </Space>
+            </Divider>
 
-        <Row gutter={[8, 8]} style={{ marginBottom: 16 }}>
-          {(Object.keys(ROLE_INFO) as Role[]).map((r) => (
-            <Col span={4} key={r}>
-              <Button
-                block
-                size="small"
-                style={{
-                  borderColor: ROLE_INFO[r].color,
-                  color: ROLE_INFO[r].color,
-                  fontSize: 11,
-                  padding: '2px 4px',
-                }}
-                onClick={() => handleDemoLogin(r)}
-              >
-                {ROLE_INFO[r].label}
-              </Button>
-            </Col>
-          ))}
-        </Row>
+            <Row gutter={[8, 8]} style={{ marginBottom: 16 }}>
+              {(Object.keys(ROLE_INFO) as Role[]).map((r) => (
+                <Col span={4} key={r}>
+                  <Button
+                    block
+                    size="small"
+                    style={{
+                      borderColor: ROLE_INFO[r].color,
+                      color: ROLE_INFO[r].color,
+                      fontSize: 11,
+                      padding: '2px 4px',
+                    }}
+                    onClick={() => handleDemoLogin(r)}
+                  >
+                    {ROLE_INFO[r].label}
+                  </Button>
+                </Col>
+              ))}
+            </Row>
+
+            <Alert
+              type="warning"
+              showIcon
+              message="Demo 模式僅供本地開發使用，正式環境將不會顯示此區塊"
+              style={{ borderRadius: 8, fontSize: 12 }}
+            />
+          </>
+        )}
 
         <Paragraph type="secondary" style={{ textAlign: 'center', marginTop: 24, fontSize: 12 }}>
           © 2026 吉航旅遊 ERP v2.0 — Powered by AI GO

@@ -15,7 +15,7 @@ import { getAppId } from '@/lib/aigo';
 export async function POST() {
   try {
     const appId = getAppId('erp');
-    const baseUrl = process.env.AIGO_API_BASE_URL || 'https://ai-go.app/api/v1';
+    const baseUrl = process.env.AIGO_API_BASE_URL || 'https://www.ai-go.app/api/v1';
     // 從 API base URL 推導主站 URL
     const siteUrl = baseUrl.replace('/api/v1', '');
 
