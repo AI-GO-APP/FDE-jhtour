@@ -25,7 +25,7 @@ export async function POST() {
 
     return NextResponse.json({
       redirect_url: integrationUrl,
-      message: '請前往 AI GO 平台登入並點擊「前往應用」進入 ERP',
+      message: '即將導向 AI GO 平台。請在平台登入後，於您的整合應用頁面點擊「前往應用」以進入 ERP',
     });
   } catch (error) {
     return NextResponse.json(

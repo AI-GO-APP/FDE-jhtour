@@ -18,14 +18,8 @@ import type {
   CountResponse,
 } from './types';
 
-/** 預設 Proxy API 路徑前綴（標準引用表 & Custom Table 共用） */
+/** 預設 Proxy API 路徑前綴（標準引用表） */
 const PROXY_PREFIX = '/open/proxy';
-/**
- * Custom Table 路徑前綴
- * 注意：目前 AI GO 後端 custom table 與標準表共用 /open/proxy/ 端點
- * 未來若 AI GO 新增獨立端點，只需修改此常數即可
- */
-const CUSTOM_TABLE_PREFIX = '/open/proxy';
 
 export class AigoProxyClient {
   private prefix: string;
@@ -34,13 +28,7 @@ export class AigoProxyClient {
     this.prefix = prefix ?? PROXY_PREFIX;
   }
 
-  /**
-   * 建立使用 Custom Table 路徑的副本
-   * 目前與標準 proxy 共用端點，未來獨立端點上線後自動切換
-   */
-  asCustomTable(): AigoProxyClient {
-    return new AigoProxyClient(this.client, CUSTOM_TABLE_PREFIX);
-  }
+
 
   /**
    * 簡單查詢（GET）

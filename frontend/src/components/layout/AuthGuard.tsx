@@ -49,8 +49,8 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       }}>
         <Result
           icon={<LockOutlined style={{ color: '#fff' }} />}
-          title={<span style={{ color: '#fff', fontSize: 24 }}>需要登入</span>}
-          subTitle={<span style={{ color: 'rgba(255,255,255,0.8)' }}>請先透過 AI GO 平台登入後使用吉航旅遊 ERP 系統</span>}
+          title={<span style={{ color: '#fff', fontSize: 24 }}>需要 AI GO 授權</span>}
+          subTitle={<span style={{ color: 'rgba(255,255,255,0.8)' }}>請使用 AI GO 平台帳號登入以存取系統資料</span>}
           style={{
             background: 'rgba(255,255,255,0.12)',
             borderRadius: 16,

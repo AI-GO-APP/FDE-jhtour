@@ -89,13 +89,13 @@ export default function LoginPage() {
             border: 'none',
           }}
         >
-          透過 AI GO 平台登入
+          使用 AI GO 帳號登入
         </Button>
 
         <Alert
           type="info"
           showIcon
-          message="點擊上方按鈕後將跳轉至 AI GO 平台進行身份認證"
+          message="將跳轉至 AI GO 平台進行授權驗證"
           style={{ marginTop: 16, borderRadius: 8 }}
         />
 

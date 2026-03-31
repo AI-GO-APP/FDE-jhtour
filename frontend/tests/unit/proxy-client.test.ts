@@ -116,11 +116,4 @@ describe('AigoProxyClient', () => {
     })
   })
 
-  describe('asCustomTable()', () => {
-    it('應回傳新的 ProxyClient 實例', () => {
-      const custom = proxy.asCustomTable()
-      expect(custom).toBeInstanceOf(AigoProxyClient)
-      expect(custom).not.toBe(proxy)
-    })
-  })
 })
