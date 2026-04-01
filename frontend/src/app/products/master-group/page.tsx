@@ -1,7 +1,7 @@
 'use client';
 /** 基本團型管理 | API: /api/products */
 import React from 'react';
-import { Form, Input } from 'antd';
+import { Form, Input, InputNumber } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import PageShell from '@/components/page-shell/PageShell';
 
@@ -16,7 +16,9 @@ const formContent = (
   <>
     <Form.Item name="name" label="團型名稱" rules={[{ required: true }]}><Input /></Form.Item>
     <Form.Item name="default_code" label="編號"><Input /></Form.Item>
-    <Form.Item name="list_price" label="售價"><Input /></Form.Item>
+    <Form.Item name="list_price" label="售價">
+      <InputNumber style={{ width: '100%' }} min={0} precision={0} placeholder="輸入售價" addonAfter="元" />
+    </Form.Item>
     <Form.Item name="description" label="說明"><Input.TextArea rows={2} /></Form.Item>
   </>
 );

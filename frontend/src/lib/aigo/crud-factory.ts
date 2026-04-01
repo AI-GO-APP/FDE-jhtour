@@ -88,7 +88,7 @@ export const TABLE_SCHEMAS: Record<string, TableSchema> = {
   },
   announcements: {
     fields: {
-      title: { required: true, type: 'string' },
+      name: { required: true, type: 'string' },
     },
   },
 

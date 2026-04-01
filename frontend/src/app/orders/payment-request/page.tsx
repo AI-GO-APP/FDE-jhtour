@@ -1,9 +1,10 @@
 'use client';
 /** 請款單作業 | API: /api/accounting */
 import React from 'react';
-import { Form, Input } from 'antd';
+import { Form, InputNumber, DatePicker } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import PageShell from '@/components/page-shell/PageShell';
+import RelationSelect from '@/components/form/RelationSelect';
 
 const columns: ColumnsType<Record<string, unknown>> = [
   { title: '單號', dataIndex: 'name', width: 140 },
@@ -14,9 +15,15 @@ const columns: ColumnsType<Record<string, unknown>> = [
 
 const formContent = (
   <>
-    <Form.Item name="partner_id" label="對象" rules={[{ required: true }]}><Input /></Form.Item>
-    <Form.Item name="amount_total" label="金額"><Input /></Form.Item>
-    <Form.Item name="date" label="日期"><Input /></Form.Item>
+    <Form.Item name="partner_id" label="對象" rules={[{ required: true }]}>
+      <RelationSelect apiPath="/api/customers" placeholder="搜尋客戶/供應商..." />
+    </Form.Item>
+    <Form.Item name="amount_total" label="金額">
+      <InputNumber style={{ width: '100%' }} min={0} precision={2} placeholder="輸入金額" />
+    </Form.Item>
+    <Form.Item name="date" label="日期">
+      <DatePicker style={{ width: '100%' }} placeholder="選擇日期" />
+    </Form.Item>
   </>
 );
 
