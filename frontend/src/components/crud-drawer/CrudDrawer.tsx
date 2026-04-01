@@ -16,13 +16,13 @@ const DATE_REGEX = /^\d{4}-\d{2}-\d{2}/;
 /**
  * 自動正規化 initialValues，防止各類控制項崩潰：
  * 1. 日期字串 → dayjs 物件（DatePicker 相容）
- * 2. Odoo 陣列 [id, "display_name"] → 取出 id 字串（Select/RelationSelect 相容）
+ * 2. AI GO FK 陣列 [id, "display_name"] → 取出 id 字串（Select/RelationSelect 相容）
  * 3. false/0 → 保留原值不被意外轉換
  */
 function normalizeFormValues(values: Record<string, unknown>): Record<string, unknown> {
   const normalized: Record<string, unknown> = {};
   for (const [key, val] of Object.entries(values)) {
-    // (1) Odoo FK 陣列格式：[uuid, "Display Name"] → 取 uuid
+    // (1) AI GO FK 陣列格式：[uuid, "Display Name"] → 取 uuid
     if (Array.isArray(val) && val.length === 2 && typeof val[0] === 'string') {
       normalized[key] = val[0];
     }
