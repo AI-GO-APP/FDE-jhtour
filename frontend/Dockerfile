@@ -5,7 +5,10 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
-RUN npm ci
+# npm ci 嚴格要求 lock file 與所有平台依賴一致，
+# 但 Windows 產生的 lock file 可能缺少 Linux/Alpine 的 native bindings（如 @emnapi）。
+# 使用 npm install 確保跨平台相容性。
+RUN npm install --prefer-offline
 
 # Rebuild the source code only when needed
 FROM node:20-alpine AS builder
