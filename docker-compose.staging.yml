@@ -6,5 +6,5 @@ services:
     env_file:
       - .env
     ports:
-      - "3016:3000"
+      - "3016:3016"
     restart: always
