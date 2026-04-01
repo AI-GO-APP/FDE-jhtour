@@ -34,22 +34,35 @@ interface HeaderProps {
   onToggle: () => void;
 }
 
+// P4: 通知數 TTL 快取（60 秒有效期，避免每次渲染都打 API）
+const NOTIFICATION_CACHE_TTL = 60_000; // 60 秒
+let notificationCache: { count: number; timestamp: number } | null = null;
+
 export default function Header({ collapsed, onToggle }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout, switchRole } = useAuth();
   const [notificationCount, setNotificationCount] = useState(0);
 
-  // 動態取得未讀通知數
+  // P4: 動態取得未讀通知數（帶 TTL 快取）
   useEffect(() => {
     let cancelled = false;
+
+    // 快取尚未過期 → 直接使用快取值
+    if (notificationCache && Date.now() - notificationCache.timestamp < NOTIFICATION_CACHE_TTL) {
+      setNotificationCount(notificationCache.count);
+      return;
+    }
+
     (async () => {
       try {
         const res = await fetch('/api/announcements?limit=1&count=true');
         if (res.ok) {
           const json = await res.json();
           if (!cancelled) {
-            setNotificationCount(json.pagination?.total ?? 0);
+            const count = json.pagination?.total ?? 0;
+            setNotificationCount(count);
+            notificationCache = { count, timestamp: Date.now() };
           }
         }
       } catch {

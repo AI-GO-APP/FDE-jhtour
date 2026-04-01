@@ -3,6 +3,11 @@
  * 包含：標題 + 工具列 + FilterPanel + DataTable + CrudDrawer
  * 支援 RBAC readonly 模式
  * 支援 apiPath 自動串接真實 API (GET/POST/PATCH/DELETE)
+ *
+ * 效能優化：
+ * - P1: Server-side 分頁（僅拉當前頁資料）
+ * - P2: Server-side 搜尋（使用 AI GO search 參數）
+ * - P3: CRUD 操作後只 refetch 當前頁（非全量）
  */
 'use client';
 
@@ -66,11 +71,18 @@ export default function PageShell<T extends object>({
   const [totalCount, setTotalCount] = useState<number>(0);
   const mountedRef = useRef(true);
 
+  // P1: Server-side 分頁狀態
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+
+  // P2: Server-side 搜尋狀態
+  const [searchKeyword, setSearchKeyword] = useState('');
+
   // 判斷使用 API 還是靜態資料
   const isApiMode = !!apiPath;
   const rawData = isApiMode ? apiData : (externalData ?? []);
 
-  // ===== 搜尋/篩選 =====
+  // ===== UI 狀態 =====
   const [filteredData, setFilteredData] = useState<T[]>(rawData);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<'create' | 'edit' | 'view'>('create');
@@ -82,18 +94,33 @@ export default function PageShell<T extends object>({
   const permission = user ? getPermission(user.role, pathname) : 'readonly';
   const isReadonly = permission === 'readonly';
 
-  // ===== API 資料獲取 =====
-  const fetchData = useCallback(async () => {
+  // ===== P1+P2: Server-side 分頁 + 搜尋的 API 資料獲取 =====
+  const fetchData = useCallback(async (page?: number, size?: number, search?: string) => {
     if (!apiPath) return;
     setLoading(true);
+
+    const effectivePage = page ?? currentPage;
+    const effectiveSize = size ?? pageSize;
+    const effectiveSearch = search ?? searchKeyword;
+    const offset = (effectivePage - 1) * effectiveSize;
+
     try {
-      const res = await fetch(`${apiPath}?limit=200&count=true`);
+      const params = new URLSearchParams({
+        limit: String(effectiveSize),
+        offset: String(offset),
+        count: 'true',
+      });
+      // P2: Server-side search — 帶搜尋關鍵字到後端
+      if (effectiveSearch) {
+        params.set('search', effectiveSearch);
+      }
+
+      const res = await fetch(`${apiPath}?${params}`);
       if (!res.ok) {
         throw new Error(`API 錯誤 [${res.status}]`);
       }
       const json = await res.json();
       if (mountedRef.current) {
-        // 相容兩種回應格式：{ data: [...] } 或直接 [...]
         const records = Array.isArray(json) ? json : (json.data ?? []);
         setApiData(records);
         setFilteredData(records);
@@ -110,15 +137,17 @@ export default function PageShell<T extends object>({
         setLoading(false);
       }
     }
-  }, [apiPath]);
+  }, [apiPath, currentPage, pageSize, searchKeyword]);
 
+  // 初始載入
   useEffect(() => {
     mountedRef.current = true;
     if (isApiMode) {
-      fetchData();
+      fetchData(1, pageSize, '');
     }
     return () => { mountedRef.current = false; };
-  }, [isApiMode, fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isApiMode, apiPath]);
 
   // 當外部靜態資料變更時同步
   useEffect(() => {
@@ -127,7 +156,23 @@ export default function PageShell<T extends object>({
     }
   }, [isApiMode, externalData]);
 
-  // ===== CRUD 操作 =====
+  // ===== P1: 分頁變更 handler =====
+  const handleTableChange = useCallback((pagination: TablePaginationConfig) => {
+    const newPage = pagination.current ?? 1;
+    const newSize = pagination.pageSize ?? pageSize;
+    setCurrentPage(newPage);
+    setPageSize(newSize);
+
+    if (isApiMode) {
+      fetchData(newPage, newSize, searchKeyword);
+    }
+  }, [isApiMode, pageSize, searchKeyword, fetchData]);
+
+  // ===== P3: CRUD 操作 — 成功後只 refetch 當前頁 =====
+  const refreshCurrentPage = useCallback(() => {
+    fetchData(currentPage, pageSize, searchKeyword);
+  }, [fetchData, currentPage, pageSize, searchKeyword]);
+
   const handleCreate = useCallback(async (values: Record<string, unknown>) => {
     if (!apiPath) {
       message.success('新增成功 (離線模式)');
@@ -142,11 +187,11 @@ export default function PageShell<T extends object>({
       if (!res.ok) throw new Error(`新增失敗 [${res.status}]`);
       message.success('新增成功');
       setDrawerOpen(false);
-      fetchData();
+      refreshCurrentPage(); // P3: 只刷新當前頁
     } catch (err) {
       message.error(`新增失敗: ${err instanceof Error ? err.message : '未知錯誤'}`);
     }
-  }, [apiPath, fetchData]);
+  }, [apiPath, refreshCurrentPage]);
 
   const handleUpdate = useCallback(async (values: Record<string, unknown>) => {
     if (!apiPath || !editingRecord) {
@@ -164,11 +209,11 @@ export default function PageShell<T extends object>({
       message.success('更新成功');
       setDrawerOpen(false);
       setEditingRecord(null);
-      fetchData();
+      refreshCurrentPage(); // P3: 只刷新當前頁
     } catch (err) {
       message.error(`更新失敗: ${err instanceof Error ? err.message : '未知錯誤'}`);
     }
-  }, [apiPath, editingRecord, rowKey, fetchData]);
+  }, [apiPath, editingRecord, rowKey, refreshCurrentPage]);
 
   const handleDelete = useCallback(async (record: T) => {
     if (!apiPath) {
@@ -180,33 +225,53 @@ export default function PageShell<T extends object>({
       const res = await fetch(`${apiPath}/${id}`, { method: 'DELETE' });
       if (!res.ok && res.status !== 204) throw new Error(`刪除失敗 [${res.status}]`);
       message.success('刪除成功');
-      fetchData();
+      refreshCurrentPage(); // P3: 只刷新當前頁
     } catch (err) {
       message.error(`刪除失敗: ${err instanceof Error ? err.message : '未知錯誤'}`);
     }
-  }, [apiPath, rowKey, fetchData]);
+  }, [apiPath, rowKey, refreshCurrentPage]);
 
-  // ===== 搜尋 =====
+  // ===== P2: Server-side 搜尋 =====
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
   const handleSearch = useCallback(
     (values: Record<string, unknown>) => {
-      const keyword = (values.keyword as string || '').toLowerCase();
-      if (!keyword) {
-        setFilteredData(rawData);
-        return;
+      const keyword = (values.keyword as string || '').trim();
+
+      if (isApiMode) {
+        // P2: Server-side 搜尋 — debounce 後發送到後端
+        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+        searchDebounceRef.current = setTimeout(() => {
+          setSearchKeyword(keyword);
+          setCurrentPage(1); // 搜尋時重置到第一頁
+          fetchData(1, pageSize, keyword);
+        }, 300);
+      } else {
+        // 靜態資料 fallback：前端 JS filter
+        if (!keyword) {
+          setFilteredData(rawData);
+          return;
+        }
+        const filtered = rawData.filter((item) =>
+          Object.values(item).some(
+            (v) => v !== null && v !== undefined && String(v).toLowerCase().includes(keyword.toLowerCase())
+          )
+        );
+        setFilteredData(filtered);
       }
-      const filtered = rawData.filter((item) =>
-        Object.values(item).some(
-          (v) => v !== null && v !== undefined && String(v).toLowerCase().includes(keyword)
-        )
-      );
-      setFilteredData(filtered);
     },
-    [rawData]
+    [isApiMode, rawData, pageSize, fetchData]
   );
 
   const handleReset = useCallback(() => {
-    setFilteredData(rawData);
-  }, [rawData]);
+    if (isApiMode) {
+      setSearchKeyword('');
+      setCurrentPage(1);
+      fetchData(1, pageSize, '');
+    } else {
+      setFilteredData(rawData);
+    }
+  }, [isApiMode, rawData, pageSize, fetchData]);
 
   // ===== 自動數字千分位格式化 =====
   /** 為沒有自訂 render 的欄位注入數字格式化 */
@@ -316,8 +381,10 @@ export default function PageShell<T extends object>({
     ];
   }, [autoFormattedColumns, formContent, isReadonly, handleDelete]);
 
+  // P1: Server-side 分頁設定 — 由 Table onChange 控制
   const pagination: TablePaginationConfig = {
-    defaultPageSize: DEFAULT_PAGE_SIZE,
+    current: isApiMode ? currentPage : undefined,
+    pageSize: isApiMode ? pageSize : DEFAULT_PAGE_SIZE,
     pageSizeOptions: PAGE_SIZE_OPTIONS,
     showSizeChanger: true,
     showQuickJumper: true,
@@ -337,7 +404,7 @@ export default function PageShell<T extends object>({
         <Space>
           {isApiMode && (
             <Tooltip title="重新載入">
-              <Button icon={<ReloadOutlined />} onClick={fetchData} loading={loading} />
+              <Button icon={<ReloadOutlined />} onClick={() => refreshCurrentPage()} loading={loading} />
             </Tooltip>
           )}
           {showCreate && formContent && !isReadonly && (
@@ -380,6 +447,7 @@ export default function PageShell<T extends object>({
           dataSource={filteredData}
           rowKey={rowKey}
           pagination={pagination}
+          onChange={handleTableChange}
           scroll={{ x: 'max-content' }}
           size="middle"
           bordered
