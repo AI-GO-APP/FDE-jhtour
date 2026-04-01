@@ -1,5 +1,5 @@
 'use client';
-/** 同業資料管理 | API: /api/customers */
+/** 同業資料管理 | API: /api/suppliers */
 import React from 'react';
 import { Form, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -27,7 +27,7 @@ export default function Page() {
     <PageShell
       title="同業資料管理"
       columns={columns}
-      apiPath="/api/customers"
+      apiPath="/api/suppliers"
       rowKey="id"
       formContent={formContent}
       searchPlaceholder="搜尋同業資料管理..."
