@@ -208,13 +208,47 @@ export default function PageShell<T extends object>({
     setFilteredData(rawData);
   }, [rawData]);
 
+  // ===== 自動數字千分位格式化 =====
+  /** 為沒有自訂 render 的欄位注入數字格式化 */
+  const autoFormattedColumns: ColumnsType<T> = useMemo(() => {
+    return columns.map((col) => {
+      // 已有自訂 render 的欄位不覆蓋
+      if ('render' in col && col.render) return col;
+      // 沒有 dataIndex 的欄位（如操作欄）跳過
+      if (!('dataIndex' in col) || !col.dataIndex) return col;
+
+      return {
+        ...col,
+        render: (value: unknown) => {
+          if (value === null || value === undefined || value === '') return '-';
+          // typeof number → 整數加千分位逗號
+          if (typeof value === 'number') {
+            return Number.isInteger(value)
+              ? value.toLocaleString('en-US')
+              : value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+          }
+          // 純數字字串（非 UUID/編號）也格式化
+          if (typeof value === 'string' && /^\d+(\.\d+)?$/.test(value) && value.length <= 15) {
+            const num = Number(value);
+            if (!isNaN(num)) {
+              return Number.isInteger(num)
+                ? num.toLocaleString('en-US')
+                : num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+            }
+          }
+          return String(value);
+        },
+      };
+    });
+  }, [columns]);
+
   // ===== 操作欄 =====
   const columnsWithAction: ColumnsType<T> = useMemo(() => {
-    if (!formContent) return columns;
+    if (!formContent) return autoFormattedColumns;
 
     if (isReadonly) {
       return [
-        ...columns,
+        ...autoFormattedColumns,
         {
           title: '操作',
           key: 'action',
@@ -239,7 +273,7 @@ export default function PageShell<T extends object>({
     }
 
     return [
-      ...columns,
+      ...autoFormattedColumns,
       {
         title: '操作',
         key: 'action',
@@ -280,7 +314,7 @@ export default function PageShell<T extends object>({
         ),
       },
     ];
-  }, [columns, formContent, isReadonly, handleDelete]);
+  }, [autoFormattedColumns, formContent, isReadonly, handleDelete]);
 
   const pagination: TablePaginationConfig = {
     defaultPageSize: DEFAULT_PAGE_SIZE,
